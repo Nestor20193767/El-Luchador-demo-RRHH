@@ -8,6 +8,8 @@ Desarrollado bajo Streamlit conforme a ESPECIFICACION_TECNICA_ARQUITECTURA_RRHH.
 import calendar
 import hashlib
 import html
+import io
+import re
 import random
 import unicodedata
 from datetime import date, datetime, timedelta
@@ -236,71 +238,108 @@ h1, h2, h3, h4 {{
 }}
 
 /* 5. SELECTBOXES, INPUTS Y CONTROLES BASEWEB */
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-testid="stNumberInput"] input,
+[data-testid="stDateInput"] input,
+div[data-baseweb="input"] > div,
+div[data-baseweb="base-input"] > div,
 div[data-baseweb="select"] > div {{
-    background-color: #151926 !important;
-    border: 1px solid #333F5C !important;
-    color: #FFFFFF !important;
-    border-radius: 9px !important;
+    background: {NARANJA} !important;
+    border: 2px solid {NARANJA} !important;
+    color: {NEGRO} !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    min-height: 44px !important;
+    box-shadow: none !important;
 }}
 
-div[data-baseweb="select"] span {{
-    color: #FFFFFF !important;
-    font-weight: 500 !important;
+[data-testid="stTextInput"] input::placeholder,
+[data-testid="stTextArea"] textarea::placeholder,
+[data-testid="stNumberInput"] input::placeholder,
+[data-testid="stDateInput"] input::placeholder {{
+    color: rgba(9, 10, 16, 0.75) !important;
 }}
 
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-testid="stNumberInput"] input,
+[data-testid="stDateInput"] input,
+div[data-baseweb="select"] span,
+div[data-baseweb="input"] input {{
+    color: {NEGRO} !important;
+    font-weight: 700 !important;
+    -webkit-text-fill-color: {NEGRO} !important;
+}}
+
+[data-testid="stTextInput"] svg,
+[data-testid="stNumberInput"] svg,
+[data-testid="stDateInput"] svg,
+div[data-baseweb="select"] svg {{
+    fill: {NEGRO} !important;
+    color: {NEGRO} !important;
+}}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus,
+[data-testid="stNumberInput"] input:focus,
+[data-testid="stDateInput"] input:focus,
+div[data-baseweb="input"] > div:focus-within,
+div[data-baseweb="select"] > div:focus-within {{
+    border: 2px solid {AZUL_PRIMARIO} !important;
+    box-shadow: 0 0 0 3px rgba(47,107,255,0.18) !important;
+}}
+
+/* Menús desplegables */
 div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {{
-    background-color: #151926 !important;
-    border: 1px solid #333F5C !important;
-    border-radius: 9px !important;
+    background-color: #111827 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
 }}
 
 li[role="option"] {{
     color: #E2E8F0 !important;
     font-size: 13.5px !important;
+    font-weight: 600 !important;
 }}
 
 li[role="option"]:hover, li[aria-selected="true"] {{
-    background-color: #2F6BFF !important;
-    color: #FFFFFF !important;
-}}
-
-div[data-baseweb="input"] > div {{
-    background-color: #151926 !important;
-    border: 1px solid #333F5C !important;
-    color: #FFFFFF !important;
-    border-radius: 9px !important;
-}}
-
-input {{
+    background-color: {AZUL_PRIMARIO} !important;
     color: #FFFFFF !important;
 }}
 
 label, [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] span {{
     color: #E2E8F0 !important;
     font-size: 13.5px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }}
 
 /* 6. BOTONES */
 .stButton > button[kind="primary"] {{
-    background: {AZUL_PRIMARIO} !important;
-    color: #FFFFFF !important;
+    background: {NARANJA} !important;
+    color: {NEGRO} !important;
     border: 0 !important;
-    border-radius: 10px !important;
-    font-weight: 600 !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
     padding: 8px 18px !important;
     transition: all 0.2s ease !important;
 }}
 .stButton > button[kind="primary"]:hover {{
-    background: #1A55E3 !important;
-    box-shadow: 0 4px 16px rgba(47, 107, 255, 0.4) !important;
+    background: #FF8F3C !important;
+    box-shadow: 0 4px 16px rgba(255, 122, 26, 0.35) !important;
 }}
 
 .stButton > button {{
-    border-radius: 10px !important;
-    border: 1px solid {GRIS_BORDE} !important;
-    background: {SUPERFICIE} !important;
+    border-radius: 12px !important;
+    border: 1px solid {AZUL_PRIMARIO} !important;
+    background: {AZUL_PRIMARIO} !important;
     color: {BLANCO} !important;
+    font-weight: 700 !important;
+}}
+.stButton > button:hover {{
+    background: #1F57E6 !important;
+    border-color: #1F57E6 !important;
+    box-shadow: 0 4px 16px rgba(47, 107, 255, 0.35) !important;
 }}
 
 /* 7. HERO BANNER Y TARJETAS */
@@ -427,6 +466,206 @@ label, [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] span {{
     margin-bottom: 3px;
     border-left: 3px solid {NARANJA};
 }}
+
+/* MATRIZ DE TURNOS */
+.schedule-wrap {{
+    margin: 12px 0 24px;
+    border: 1px solid #24314C;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0D1321;
+}}
+.schedule-header {{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding: 14px 18px;
+    background: linear-gradient(90deg, #111A2D 0%, #17284F 100%);
+    border-bottom: 1px solid #24314C;
+}}
+.schedule-header-title {{
+    color:#FFFFFF;
+    font-size:15px;
+    font-weight:800;
+}}
+.schedule-header-subtitle {{
+    color:#AFC4FF;
+    font-size:12px;
+}}
+.schedule-legend {{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}}
+.legend-chip {{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    border:1px solid #2D3D5C;
+    background:#111827;
+    color:#E2E8F0;
+}}
+.schedule-scroll {{
+    overflow-x:auto;
+}}
+.table-schedule {{
+    width:100%;
+    min-width: 1080px;
+    border-collapse: collapse;
+    background:#0D1321;
+}}
+.table-schedule th, .table-schedule td {{
+    border: 1px solid #24314C;
+    vertical-align: top;
+}}
+.table-schedule th {{
+    background: #111C34;
+    color:#FFFFFF;
+    padding:10px 8px;
+    text-align:center;
+}}
+.table-schedule th:first-child {{
+    min-width:250px;
+    text-align:left;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background:#111C34;
+}}
+.table-schedule td:first-child {{
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background:#0F182B;
+    min-width:250px;
+}}
+.schedule-name {{
+    padding:10px 12px;
+}}
+.schedule-name strong {{
+    display:block;
+    color:#FFFFFF;
+    font-size:13.5px;
+}}
+.schedule-name span {{
+    display:block;
+    color:#94A3B8;
+    font-size:11.5px;
+    margin-top:3px;
+}}
+.schedule-day-title {{
+    font-size:12px;
+    font-weight:800;
+    color:#FFFFFF;
+}}
+.schedule-day-date {{
+    font-size:11px;
+    color:#AFC4FF;
+    margin-top:2px;
+}}
+.schedule-day-cell {{
+    padding:8px;
+    min-width:120px;
+    background:#0D1321;
+}}
+.schedule-day-cell.out-month {{
+    background:#0A0F1B;
+    opacity:0.55;
+}}
+.schedule-day-cell.today {{
+    box-shadow: inset 0 0 0 2px {AZUL_PRIMARIO};
+}}
+.schedule-feriado {{
+    display:inline-block;
+    margin-bottom:6px;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:800;
+    background:rgba(255,122,26,0.16);
+    border:1px solid rgba(255,122,26,0.45);
+    color:#FFD1B0;
+}}
+.schedule-badge {{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:10px;
+    font-size:11px;
+    font-weight:800;
+    line-height:1.2;
+}}
+.schedule-detail {{
+    display:block;
+    margin-top:5px;
+    color:#D6E0FF;
+    font-size:10.5px;
+    line-height:1.35;
+}}
+.status-real {{ background: rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.45); color:#9EF3BA; }}
+.status-sim {{ background: rgba(47,107,255,0.18); border:1px solid rgba(47,107,255,0.45); color:#AFC4FF; }}
+.status-descanso {{ background: rgba(148,163,184,0.18); border:1px solid rgba(148,163,184,0.42); color:#E2E8F0; }}
+.status-vacaciones {{ background: rgba(255,122,26,0.18); border:1px solid rgba(255,122,26,0.45); color:#FFD1B0; }}
+.status-fuera {{ background: rgba(71,85,105,0.16); border:1px dashed rgba(148,163,184,0.35); color:#94A3B8; }}
+.status-sinregistro {{ background: rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.35); color:#FFB3B3; }}
+
+/* MATRIZ APROBADOR VACACIONES */
+.vac-wrap {{
+    margin: 12px 0 24px;
+    border: 1px solid #24314C;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0D1321;
+}}
+.vac-table {{
+    width:100%;
+    min-width:1400px;
+    border-collapse: collapse;
+    background:#0D1321;
+}}
+.vac-table th, .vac-table td {{
+    border: 1px solid #24314C;
+}}
+.vac-table th:first-child, .vac-table td:first-child {{
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background:#0F182B;
+    min-width:260px;
+}}
+.vac-table th:first-child {{
+    z-index: 3;
+    background:#111C34;
+}}
+.vac-table th {{
+    background:#111C34;
+    color:#FFFFFF;
+    padding:6px 4px;
+    text-align:center;
+}}
+.vac-day-num {{ font-size:12px; font-weight:800; color:#FFFFFF; }}
+.vac-day-dow {{ font-size:9px; color:#AFC4FF; margin-top:2px; }}
+.vac-cell {{
+    min-width:32px;
+    height:30px;
+    text-align:center;
+    font-size:10px;
+    font-weight:800;
+    color:#FFFFFF;
+    background:#0D1321;
+}}
+.vac-empty {{ background:#0D1321; color:#0D1321; }}
+.vac-aprobada {{ background:rgba(255,122,26,0.80); color:#090A10; }}
+.vac-pendiente {{ background:rgba(255,122,26,0.18); color:#FFD1B0; box-shadow: inset 0 0 0 1px rgba(255,122,26,0.45); }}
+.vac-art {{ background:rgba(47,107,255,0.80); color:#FFFFFF; }}
+.vac-art-pendiente {{ background:rgba(47,107,255,0.18); color:#AFC4FF; box-shadow: inset 0 0 0 1px rgba(47,107,255,0.45); }}
+.vac-otro {{ background:rgba(255,255,255,0.12); color:#FFFFFF; }}
+.vac-otro-pendiente {{ background:rgba(148,163,184,0.18); color:#E2E8F0; }}
+.vac-rechazada {{ background:rgba(71,85,105,0.22); color:#94A3B8; text-decoration:line-through; }}
 
 /* MOCKUP WHATSAPP */
 .wa-container {{
@@ -569,15 +808,15 @@ def generar_cuil(dni, sexo=0):
 
 
 def calcular_edad(fecha_nac, fecha_ref=None):
-    if not fecha_nac:
-        return 0
+    if pd.isna(fecha_nac):
+        return None
     ref = fecha_ref or HOY_AR
     return ref.year - fecha_nac.year - ((ref.month, ref.day) < (fecha_nac.month, fecha_nac.day))
 
 
 def calcular_antiguedad_exacta(fecha_ingreso, fecha_ref=None):
-    if not fecha_ingreso:
-        return 0, 0, 0, "0 años"
+    if pd.isna(fecha_ingreso):
+        return None, None, None, "Sin registrar"
     ref = fecha_ref or HOY_AR
     anios = ref.year - fecha_ingreso.year
     meses = ref.month - fecha_ingreso.month
@@ -595,6 +834,8 @@ def calcular_antiguedad_exacta(fecha_ingreso, fecha_ref=None):
 
 
 def escala_vacaciones_lct(antiguedad_anios):
+    if pd.isna(antiguedad_anios):
+        return None
     if antiguedad_anios <= 5:
         return 14
     elif antiguedad_anios <= 10:
@@ -606,7 +847,9 @@ def escala_vacaciones_lct(antiguedad_anios):
 
 
 def calcular_plus_vacacional(sueldo_mensual, dias_vacaciones):
-    if not sueldo_mensual or sueldo_mensual <= 0 or dias_vacaciones <= 0:
+    if pd.isna(sueldo_mensual):
+        return None, None, None
+    if sueldo_mensual <= 0 or dias_vacaciones <= 0:
         return 0.0, 0.0, 0.0
     jornal_vacacional = sueldo_mensual / 25.0
     jornal_habitual = sueldo_mensual / 30.0
@@ -616,6 +859,8 @@ def calcular_plus_vacacional(sueldo_mensual, dias_vacaciones):
 
 
 def costo_laboral_total(sueldo_bruto):
+    if pd.isna(sueldo_bruto):
+        sueldo_bruto = float("nan")
     cargas_patronales = sueldo_bruto * 0.240
     art = sueldo_bruto * 0.030
     provision_sac = sueldo_bruto * (1.0 / 12.0)
@@ -630,6 +875,32 @@ def costo_laboral_total(sueldo_bruto):
         "costo_total_mensual": costo_mensual,
         "costo_total_anual": costo_mensual * 12.0,
     }
+
+
+def calcular_pago_art(sueldo_mensual, dias_licencia):
+    if pd.isna(sueldo_mensual) or sueldo_mensual <= 0 or dias_licencia <= 0:
+        return 0.0, 0, 0, 0.0, 0.0
+    jornal = sueldo_mensual / 30.0
+    dias_empleador = min(int(dias_licencia), 10)
+    dias_art = max(0, int(dias_licencia) - 10)
+    costo_empleador = jornal * dias_empleador
+    costo_art = jornal * dias_art
+    return jornal, dias_empleador, dias_art, costo_empleador, costo_art
+
+
+def aplicar_estilo_plotly(fig):
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color=BLANCO),
+        title_font=dict(color=BLANCO, size=18),
+        legend=dict(font=dict(color=BLANCO), title=dict(font=dict(color=BLANCO))),
+        margin=dict(t=48, b=24, l=24, r=24),
+        hoverlabel=dict(bgcolor="#111827", font_color=BLANCO, bordercolor=AZUL_PRIMARIO),
+    )
+    fig.update_xaxes(title_font=dict(color=BLANCO), tickfont=dict(color="#D7E3FF"), gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.10)")
+    fig.update_yaxes(title_font=dict(color=BLANCO), tickfont=dict(color="#D7E3FF"), gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.10)")
+    return fig
 
 
 def area_de_rol(rol):
@@ -669,151 +940,79 @@ def registrar_auditoria(usuario, rol, accion, entidad, detalle):
 # ============================================================
 
 @st.cache_data(show_spinner="Procesando registros de personal...")
-def cargar_personal(origen):
-    df = pd.read_excel(origen, engine="openpyxl")
-    df.columns = [str(c).strip() for c in df.columns]
-
-    requeridas = [
-        "Razon social", "Sucursal", "Local", "Empleados", "Rol", "Semanal", "Salario mensual"
-    ]
-    faltan = [c for c in requeridas if c not in df.columns]
-    if faltan:
-        raise ValueError(f"Faltan columnas requeridas en el archivo: {', '.join(faltan)}")
-
-    df["Fila Excel"] = df.index + 2
-
-    for col in ["Salario mensual", "Semanal", "semanal real", "Aguinaldo junio", "Aguinaldo diciembre"]:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-        else:
-            df[col] = 0.0
-
-    df = df.dropna(subset=requeridas).copy()
-
-    excluidos = df["Empleados"].astype(str).map(norm).str.fullmatch("compras verduleria|encargado|natalia")
-    df = df.loc[(~excluidos) & (df["Salario mensual"] > 0)].copy()
-
-    df["Nombre"] = df["Empleados"].astype(str).str.strip()
-
-    def limpiar_rs(val):
-        x = norm(val)
-        if "mision" in x:
-            return "Misión"
-        if "comendatori" in x or "ilcom" in x:
-            return "Il Comendatori"
-        return str(val).strip()
-
-    df["Razón social"] = df["Razon social"].map(limpiar_rs)
-
-    def limpiar_local(val):
-        x = norm(val)
-        if "entrada" in x:
-            return "Entrada"
-        if "26" in x or "ruta" in x:
-            return "Ruta 26"
-        if "colectora" in x:
-            return "Colectora"
-        if "savio" in x:
-            return "Savio"
-        return str(val).strip()
-
-    df["Local"] = df["Local"].map(limpiar_local)
-
-    num_sucursal = df["Sucursal"].astype(str).str.extract(r"(\d+)")[0].fillna("1")
-    df["ID"] = "S" + num_sucursal + "-F" + df["Fila Excel"].astype(int).astype(str).str.zfill(2)
+def cargar_personal(contenido):
+    # Leer las dos filas de encabezado del nuevo Excel sin convertirlas en empleados.
+    raw = pd.read_excel(io.BytesIO(contenido), sheet_name="Hoja1", header=None, engine="openpyxl", dtype=object)
+    encabezados = ["Razon social", "Sucursal", "Local", "Empleados", "Atiende al publico?", "Rol",
+                   "Nombre Excel", "Apellido", "Fecha de nacimiento", "DNI", "Fecha de ingreso",
+                   "Fecha de Reingreso 1", "Fecha de Reingreso 2", "Calle", "Nro", "Depto", "Localidad",
+                   "Celular", "Telefono fijo", "Horas diarias", "Horas semanales", "Jornada horaria",
+                   "Días laborables", "Salario en recibo de sueldo", "Semanal", "Salario mensual Calculo",
+                   "Aguinaldo junio", "Aguinaldo diciembre", "Semanas 2026", "Total (sin aguinaldo)",
+                   "semanal real", "Total real (sin aguinaldo)", "Diferencia"]
+    if raw.shape[1] < len(encabezados) or norm(raw.iloc[0, 0]) != "razon social" or norm(raw.iloc[1, 25]) != "salario mensual calculo":
+        raise ValueError("El formato esperado es Hoja1, con dos encabezados y Salario mensual Calculo en Z2.")
+    df = raw.iloc[2:, :len(encabezados)].copy()
+    df.columns = encabezados
+    df["Fila Excel"] = df.index + 1
+    df = df.loc[df["Empleados"].notna() & df["Sucursal"].notna() & df["Local"].notna()].copy()
+    # Mantener el alcance del piloto: las partidas compartidas y Natalia no integran esta nómina.
+    df = df.loc[~df["Empleados"].map(norm).isin(["compras verduleria", "compras", "verduleria", "encargado", "natalia"])].copy()
+    def texto(v):
+        if pd.isna(v):
+            return ""
+        if isinstance(v, (int, float)) and float(v).is_integer():
+            return str(int(v))
+        return str(v).strip()
+    for col in ["Nombre Excel", "Apellido", "Rol", "Sucursal", "Empleados", "DNI", "Calle", "Nro", "Depto", "Localidad", "Celular", "Telefono fijo", "Jornada horaria", "Días laborables", "Atiende al publico?"]:
+        df[col] = df[col].map(texto)
+    def nombre_visible(r):
+        partes = " ".join(x for x in (r["Nombre Excel"], r["Apellido"]) if x)
+        return partes or f'{r["Rol"] or r["Empleados"]} (sin nombre registrado)'
+    df["Nombre"] = df.apply(nombre_visible, axis=1)
+    df["Identidad completa"] = df["Nombre Excel"].ne("") & df["Apellido"].ne("")
+    df["Razón social"] = df["Razon social"].map(lambda v: "Misión" if "mision" in norm(v) else ("Il Comendatori" if "comendatori" in norm(v) else texto(v)))
+    df["Local"] = df["Local"].map(lambda v: next((k for k in SUCURSALES_INFO if norm(k) == norm(v)), texto(v)))
+    num = df["Sucursal"].str.extract(r"(\d+)")[0].fillna("X")
+    numero_empleado = df["Empleados"].str.extract(r"(?i)^empleado\s+(\d+)$")[0]
+    df["ID"] = [f"S{n}-E{int(e):02d}" if pd.notna(e) else f"S{n}-{norm(rol).replace(' ', '-')}" for n, e, rol in zip(num, numero_empleado, df["Rol"])]
+    if df["ID"].duplicated().any():
+        raise ValueError("Se detectaron IDs de personal duplicados; revise los códigos de empleado por sucursal.")
     df["Unidad de Negocio"] = df["Rol"].map(area_de_rol)
     df["Área"] = df["Unidad de Negocio"]
-
-    df["Mensual ARS"] = df["Salario mensual"]
-    df["Semanal equivalente ARS"] = df["Mensual ARS"] * 12.0 / 52.0
-    df["Anual base ARS"] = df["Mensual ARS"] * 12.0
-
-    calles_zonanorte = [
-        ("Av. Tratado del Pilar", "Pilar"),
-        ("Rivadavia", "Pilar"),
-        ("Ruta 26", "Del Viso"),
-        ("Av. Madero", "Del Viso"),
-        ("Av. Eugenia Tapia de Cruz", "Escobar"),
-        ("Asborno", "Escobar"),
-        ("Boulevard 5 de Junio", "Maquinista Savio"),
-        ("Juan XXIII", "Maquinista Savio"),
-        ("Av. Belgrano", "Garín"),
-        ("Churich", "Garín"),
-    ]
-
-    obras_sociales = ["OSECAC", "OSECAC", "OSDE 210", "Swiss Medical", "OSPAT"]
-    aseguradoras_art = ["Prevención ART", "La Segunda ART", "Asociart"]
-    convenios_categoria = [
-        "CCT 130/75 - Personal Especializado",
-        "CCT 130/75 - Cajero B",
-        "CCT 130/75 - Maestranza A",
-        "CCT 130/75 - Auxiliar A",
-        "CCT 130/75 - Administrativo B",
-    ]
-
-    dnis, cuils, nacimientos, ingresos, domicilios, ult_actualiz_domicilio = [], [], [], [], [], []
-    art_list, art_polizas, art_vencimientos, obs_list, cat_list = [], [], [], [], []
-    familiares_list, emergencias_list, estados_laborales = [], [], []
-
-    for i, uid in enumerate(df["ID"]):
-        rng = random.Random(semilla(uid))
-        dni_val = rng.randint(28_000_000, 44_000_000)
-        sexo = 1 if (rng.randint(1, 10) > 7) else 0
-        cuil_val = generar_cuil(dni_val, sexo)
-
-        nac = date(rng.randint(1972, 2003), rng.randint(1, 12), rng.randint(1, 28))
-        ing = date(rng.randint(2014, 2025), rng.randint(1, 12), rng.randint(1, 28))
-
-        calle, loc = calles_zonanorte[rng.randint(0, len(calles_zonanorte) - 1)]
-        altura = rng.randint(100, 4800)
-        domicilio_str = f"{calle} {altura}, {loc}, Prov. Buenos Aires"
-
-        dias_atras_dom = rng.choice([45, 90, 110, 195, 230, 270])
-        ult_act_dom = HOY_AR - timedelta(days=dias_atras_dom)
-
-        art_cia = aseguradoras_art[rng.randint(0, len(aseguradoras_art) - 1)]
-        art_pol = f"POL-{rng.randint(100000, 999999)}/01"
-        art_venc = date(2027, rng.randint(1, 12), rng.randint(1, 28))
-
-        obs = obras_sociales[rng.randint(0, len(obras_sociales) - 1)]
-        cat = convenios_categoria[rng.randint(0, len(convenios_categoria) - 1)]
-
-        num_hijos = rng.randint(0, 3)
-        fam_str = f"{num_hijos} hijos a cargo" if num_hijos > 0 else "Sin cargas familiares declaradas"
-        tel_emerg = f"+54 9 11 {rng.randint(3000, 6999)}-{rng.randint(1000, 9999)}"
-
-        dnis.append(f"{dni_val:,}".replace(",", "."))
-        cuils.append(cuil_val)
-        nacimientos.append(nac)
-        ingresos.append(ing)
-        domicilios.append(domicilio_str)
-        ult_actualiz_domicilio.append(ult_act_dom)
-        art_list.append(art_cia)
-        art_polizas.append(art_pol)
-        art_vencimientos.append(art_venc)
-        obs_list.append(obs)
-        cat_list.append(cat)
-        familiares_list.append(fam_str)
-        emergencias_list.append(tel_emerg)
-        estados_laborales.append("Activo")
-
-    df["DNI"] = dnis
-    df["CUIL"] = cuils
-    df["Fecha Nacimiento"] = nacimientos
-    df["Fecha Ingreso"] = ingresos
-    df["Domicilio"] = domicilios
-    df["Ultima Confirmacion Domicilio"] = ult_actualiz_domicilio
-    df["ART Aseguradora"] = art_list
-    df["ART Poliza"] = art_polizas
-    df["ART Vencimiento"] = art_vencimientos
-    df["Obra Social"] = obs_list
-    df["Categoria Convenio"] = cat_list
-    df["Familiares"] = familiares_list
-    df["Contacto Emergencia"] = emergencias_list
-    df["Estado Laboral"] = estados_laborales
-
+    for col in ["Salario en recibo de sueldo", "Semanal", "Salario mensual Calculo", "semanal real", "Aguinaldo junio", "Aguinaldo diciembre", "Semanas 2026", "Total (sin aguinaldo)", "Total real (sin aguinaldo)", "Diferencia", "Horas diarias", "Horas semanales"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    df["Mensual ARS"] = df["Salario mensual Calculo"].where(df["Salario mensual Calculo"].ge(0))
+    df["Mensual real ARS"] = (df["semanal real"] * 52 / 12).where(df["semanal real"].ge(0))
+    df["Semanal equivalente ARS"] = df["Mensual ARS"] * 12 / 52
+    df["Anual base ARS"] = df["Mensual ARS"] * 12
+    for origen, destino in [("Fecha de nacimiento", "Fecha Nacimiento"), ("Fecha de ingreso", "Fecha Ingreso"), ("Fecha de Reingreso 1", "Fecha Reingreso 1"), ("Fecha de Reingreso 2", "Fecha Reingreso 2")]:
+        df[destino] = df[origen].map(lambda v: pd.to_datetime(v, errors="coerce", dayfirst=True)).map(lambda v: v.date() if pd.notna(v) else None)
+    df["Domicilio"] = df.apply(lambda r: ", ".join(x for x in (" ".join(x for x in [r["Calle"], r["Nro"]] if x), r["Depto"], r["Localidad"]) if x), axis=1)
+    # El Excel no contiene estos antecedentes: no generar datos personales ficticios.
+    for col in [
+        "CUIL", "ART Aseguradora", "ART Poliza", "ART Estado Caso", "ART Fecha Denuncia",
+        "ART Días a cargo empleador", "ART Días a cargo aseguradora", "Obra Social",
+        "Prepaga", "Nro Afiliado Salud", "Examen preocupacional", "Categoria Convenio",
+        "Familiares", "Contacto Emergencia", "Estado Laboral"
+    ]:
+        df[col] = "Sin registrar"
+    df["Ultima Confirmacion Domicilio"] = None
+    df["ART Vencimiento"] = None
     return df.reset_index(drop=True)
 
+
+def mostrar_dato(v):
+    return "Sin registrar" if pd.isna(v) or str(v).strip() == "" else str(v)
+
+
+def mostrar_fecha(v):
+    return v.strftime("%d/%m/%Y") if pd.notna(v) else "Sin registrar"
+
+
+def promedio_conocidos(valores):
+    validos = [v for v in valores if pd.notna(v)]
+    return sum(validos) / len(validos) if validos else None
 
 # ============================================================
 # 5. CALENDARIO OFICIAL ARGENTINO
@@ -833,35 +1032,42 @@ def feriados_argentina(anio):
 # ============================================================
 
 def turno_base(uid, dia):
+    # Las jornadas explícitas tienen prioridad. El resto se identifica como simulación.
+    coincidencias = personal.loc[personal["ID"] == uid]
+    if coincidencias.empty:
+        return "Sin registro"
+    r = coincidencias.iloc[0]
+    dias = norm(r["Días laborables"])
+    if dias:
+        if norm(DIAS_SEMANA[dia.weekday()]) not in dias:
+            return "Descanso"
+        return r["Jornada horaria"] or "Laborable (horario sin registrar)"
     descanso = semilla("descanso-" + uid) % 7
     if dia.weekday() == descanso:
-        return "Descanso"
-    
+        return "Descanso simulado"
     semana = dia.isocalendar().week
     tipo = (semilla("turno-" + uid) + semana) % 3
-    if tipo == 0:
-        return "Apertura (07:00-15:00)"
-    elif tipo == 1:
-        return "Cierre (14:00-22:00)"
-    else:
-        return "Cortado (08:30-12:30 / 16:30-20:30)"
+    return ["Sim. Apertura (07:00-15:00)", "Sim. Cierre (14:00-22:00)", "Sim. Cortado (08:30-12:30 / 16:30-20:30)"][tipo]
+
+def licencia_activa(uid, dia):
+    for s in st.session_state.rrhh_vacaciones:
+        if s["ID"] == uid and s["Estado"] == "Aprobada" and s["Inicio"] <= dia <= s["Fin"]:
+            return s.get("Tipo", "Vacaciones LCT")
+    return None
 
 
 def esta_en_vacaciones(uid, dia):
-    return any(
-        s["ID"] == uid
-        and s["Estado"] == "Aprobada"
-        and s["Inicio"] <= dia <= s["Fin"]
-        for s in st.session_state.rrhh_vacaciones
-    )
+    tipo = licencia_activa(uid, dia)
+    return tipo == "Vacaciones LCT"
 
 
 def turno_efectivo(uid, dia):
     clave_reemplazo = (dia, uid)
     if clave_reemplazo in st.session_state.rrhh_reemplazos:
         return st.session_state.rrhh_reemplazos[clave_reemplazo]["turno"]
-    if esta_en_vacaciones(uid, dia):
-        return "Vacaciones"
+    tipo = licencia_activa(uid, dia)
+    if tipo:
+        return "Vacaciones" if tipo == "Vacaciones LCT" else tipo
     return turno_base(uid, dia)
 
 
@@ -878,7 +1084,7 @@ def evaluar_cobertura_sucursal(plantilla, local, fecha):
         ausentes = 0
         for _, emp in empleados_area.iterrows():
             t = turno_efectivo(emp["ID"], fecha)
-            if t not in ["Descanso", "Vacaciones"]:
+            if not t.startswith("Descanso") and t not in ["Vacaciones", "Enfermedad / Certificado", "ART / Accidente laboral", "Otra licencia", "Sin registro"]:
                 presentes += 1
             else:
                 ausentes += 1
@@ -894,90 +1100,216 @@ def evaluar_cobertura_sucursal(plantilla, local, fecha):
     return pd.DataFrame(resultados)
 
 
+def etiqueta_turno_resumida(turno):
+    t = norm(turno)
+    if not t or t == "nan":
+        return "Sin registro"
+    if "art" in t:
+        return "ART"
+    if "enfermedad" in t or "certificado" in t:
+        return "Enfermedad"
+    if "otra licencia" in t:
+        return "Licencia"
+    if "vacacion" in t:
+        return "Vacaciones"
+    if "descanso" in t:
+        return "Descanso"
+    if "apertura" in t:
+        return "Apertura"
+    if "cierre" in t:
+        return "Cierre"
+    if "cortado" in t:
+        return "Cortado"
+    if "laborable" in t:
+        return "Laborable"
+    if "sin registro" in t:
+        return "Sin registro"
+    return str(turno)
+
+
+def clase_turno(turno, es_mes=True):
+    t = norm(turno)
+    if not es_mes:
+        return "status-fuera"
+    if "art" in t:
+        return "status-sim"
+    if "enfermedad" in t or "otra licencia" in t:
+        return "status-vacaciones"
+    if "vacacion" in t:
+        return "status-vacaciones"
+    if "descanso" in t:
+        return "status-descanso"
+    if "sin registro" in t or not t:
+        return "status-sinregistro"
+    if t.startswith("sim."):
+        return "status-sim"
+    return "status-real"
+
+
+def detalle_turno(turno, es_mes=True):
+    if not es_mes:
+        return "Fuera del mes"
+    return html.escape(str(turno), quote=True)
+
+
+def render_matriz_turnos(sub_personal, fechas, feriados_anio, titulo, subtitulo=""):
+    if sub_personal.empty:
+        return f'<div class="panel-card"><b>No hay trabajadores para mostrar.</b><br><span style="color:{GRIS_TEXTO};">Ajuste los filtros para visualizar la matriz.</span></div>'
+
+    df = sub_personal.sort_values(["Unidad de Negocio", "Rol", "Nombre", "ID"]).copy()
+    legend = (
+        '<div class="schedule-legend">'
+        '<span class="legend-chip">🟢 Jornada registrada</span>'
+        '<span class="legend-chip">🔵 Turno simulado</span>'
+        '<span class="legend-chip">🟠 Vacaciones / feriado</span>'
+        '<span class="legend-chip">⚪ Descanso</span>'
+        '</div>'
+    )
+
+    html_out = [
+        '<div class="schedule-wrap">',
+        '<div class="schedule-header">',
+        f'<div><div class="schedule-header-title">{html.escape(titulo)}</div><div class="schedule-header-subtitle">{html.escape(subtitulo)}</div></div>',
+        legend,
+        '</div>',
+        '<div class="schedule-scroll">',
+        '<table class="table-schedule">',
+        '<thead><tr><th>Trabajador</th>'
+    ]
+
+    for d in fechas:
+        html_out.append(
+            f'<th><div class="schedule-day-title">{html.escape(DIAS_SEMANA[d.weekday()])}</div><div class="schedule-day-date">{d.strftime("%d/%m")}</div></th>'
+        )
+    html_out.append('</tr></thead><tbody>')
+
+    mes_referencia = fechas[3].month if len(fechas) >= 4 else fechas[0].month
+    for _, emp in df.iterrows():
+        html_out.append('<tr>')
+        nombre = html.escape(str(emp["Nombre"]))
+        rol = html.escape(str(emp["Rol"]))
+        local = html.escape(str(emp["Local"]))
+        html_out.append(
+            f'<td><div class="schedule-name"><strong>{nombre}</strong><span>{rol} · {local}</span></div></td>'
+        )
+
+        for d in fechas:
+            es_mes = d.month == mes_referencia
+            turno = turno_efectivo(emp["ID"], d)
+            clase_td = 'schedule-day-cell'
+            if not es_mes:
+                clase_td += ' out-month'
+            if d == HOY_AR:
+                clase_td += ' today'
+            badge_class = clase_turno(turno, es_mes=es_mes)
+            badge_text = html.escape(etiqueta_turno_resumida(turno))
+            detalle = detalle_turno(turno, es_mes=es_mes)
+            feriado_html = ''
+            if d in feriados_anio:
+                feriado_html = f'<div class="schedule-feriado">🇦🇷 {html.escape(str(feriados_anio[d]))}</div>'
+            html_out.append(
+                f'<td class="{clase_td}">{feriado_html}<span class="schedule-badge {badge_class}" title="{detalle}">{badge_text}</span><span class="schedule-detail">{detalle}</span></td>'
+            )
+
+        html_out.append('</tr>')
+
+    html_out.append('</tbody></table></div></div>')
+    return ''.join(html_out)
+
+
+def licencia_en_fecha(uid, dia):
+    activos = []
+    for s in st.session_state.rrhh_vacaciones:
+        if s["ID"] == uid and s["Inicio"] <= dia <= s["Fin"]:
+            activos.append(s)
+    if not activos:
+        return None
+    prioridad = {"Aprobada": 0, "Pendiente": 1, "Rechazada": 2}
+    activos.sort(key=lambda s: prioridad.get(s.get("Estado", "Pendiente"), 9))
+    return activos[0]
+
+
+def clase_licencia_celda(sol):
+    if sol is None:
+        return "vac-empty"
+    tipo = sol.get("Tipo", "Vacaciones LCT")
+    estado = sol.get("Estado", "Pendiente")
+    if estado == "Rechazada":
+        return "vac-rechazada"
+    if tipo == "ART / Accidente laboral":
+        return "vac-art" if estado == "Aprobada" else "vac-art-pendiente"
+    if tipo == "Vacaciones LCT":
+        return "vac-aprobada" if estado == "Aprobada" else "vac-pendiente"
+    return "vac-otro" if estado == "Aprobada" else "vac-otro-pendiente"
+
+
+def texto_licencia_celda(sol):
+    if sol is None:
+        return ""
+    tipo = sol.get("Tipo", "Vacaciones LCT")
+    if tipo == "Vacaciones LCT":
+        return "V"
+    if tipo == "ART / Accidente laboral":
+        return "ART"
+    if tipo == "Enfermedad / Certificado":
+        return "E"
+    return "L"
+
+
+def render_matriz_aprobador_vacaciones(sub_personal, anio, mes):
+    if sub_personal.empty:
+        return '<div class="panel-card">No hay personal para la vista de aprobador.</div>'
+    dias_mes = calendar.monthrange(anio, mes)[1]
+    fechas = [date(anio, mes, d) for d in range(1, dias_mes + 1)]
+    leyenda = ('<div class="schedule-legend">'
+               '<span class="legend-chip">🟧 Vacación aprobada</span>'
+               '<span class="legend-chip">🟠 Vacación pendiente</span>'
+               '<span class="legend-chip">🟦 ART / accidente</span>'
+               '<span class="legend-chip">⬜ Otras licencias</span>'
+               '</div>')
+    out = ['<div class="vac-wrap">',
+           f'<div class="schedule-header"><div><div class="schedule-header-title">Vista aprobador · {MESES[mes-1]} {anio}</div><div class="schedule-header-subtitle">Matriz diaria para detectar solapes, backups y cobertura por persona.</div></div>{leyenda}</div>',
+           '<div class="schedule-scroll"><table class="vac-table"><thead><tr><th>Trabajador</th>']
+    for d in fechas:
+        out.append(f'<th><div class="vac-day-num">{d.day}</div><div class="vac-day-dow">{DIAS_SEMANA[d.weekday()][:3]}</div></th>')
+    out.append('</tr></thead><tbody>')
+    df = sub_personal.sort_values(["Local", "Unidad de Negocio", "Nombre"]).copy()
+    for _, emp in df.iterrows():
+        out.append('<tr>')
+        out.append(f'<td><div class="schedule-name"><strong>{html.escape(str(emp["Nombre"]))}</strong><span>{html.escape(str(emp["Rol"]))} · {html.escape(str(emp["Local"]))}</span></div></td>')
+        for d in fechas:
+            sol = licencia_en_fecha(emp["ID"], d)
+            cls = clase_licencia_celda(sol)
+            txt = texto_licencia_celda(sol)
+            title = ''
+            if sol is not None:
+                title = html.escape(f'{sol.get("Tipo", "Vacaciones LCT")} · {sol.get("Estado", "Pendiente")} · {sol["Inicio"].strftime("%d/%m/%Y")} a {sol["Fin"].strftime("%d/%m/%Y")}', quote=True)
+            out.append(f'<td class="vac-cell {cls}" title="{title}">{txt}</td>')
+        out.append('</tr>')
+    out.append('</tbody></table></div></div>')
+    return ''.join(out)
+
+
 # ============================================================
 # 7. ESTADO DE SESIÓN (SESSION STATE)
 # ============================================================
 
-def inicializar_session_state(personal):
-    if "rrhh_vacaciones" not in st.session_state:
-        st.session_state.rrhh_vacaciones = []
-        ejemplos = personal.sample(n=min(5, len(personal)), random_state=42)
-        for i, (_, r) in enumerate(ejemplos.iterrows()):
-            inicio = date(2026, 11 + (i % 2), 15 + i * 2)
-            dias_sol = 7 + (i % 3) * 7
-            fin = inicio + timedelta(days=dias_sol - 1)
-            antig_anios = antiguedad_a_cierre(r["Fecha Ingreso"], 2026)
-            _, tot_vac, plus_neto = calcular_plus_vacacional(r["Mensual ARS"], dias_sol)
-            st.session_state.rrhh_vacaciones.append({
-                "N": i + 1,
-                "ID": r["ID"],
-                "Nombre": r["Nombre"],
-                "Local": r["Local"],
-                "Área": r["Unidad de Negocio"],
-                "Inicio": inicio,
-                "Fin": fin,
-                "Dias": dias_sol,
-                "Estado": "Aprobada" if i % 2 == 0 else "Pendiente",
-                "Plus Vacacional ARS": plus_neto,
-                "Total Vacaciones ARS": tot_vac,
-                "Fecha Pago Prevista": inicio - timedelta(days=3),
-                "Aprobado Por": "Gerente de Recursos Humanos" if i % 2 == 0 else "—",
-            })
-
-    if "rrhh_anticipos" not in st.session_state:
-        st.session_state.rrhh_anticipos = [
-            {
-                "N": 1,
-                "ID": personal.iloc[0]["ID"],
-                "Nombre": personal.iloc[0]["Nombre"],
-                "Local": personal.iloc[0]["Local"],
-                "Monto": round(personal.iloc[0]["Mensual ARS"] * 0.25, -3),
-                "Fecha Solicitud": HOY_AR - timedelta(days=5),
-                "Fecha Pago": HOY_AR - timedelta(days=2),
-                "Estado": "Aprobado",
-                "Saldo Pendiente": round(personal.iloc[0]["Mensual ARS"] * 0.25, -3),
-                "Aprobado Por": "Administrador General",
-            }
-        ]
-
-    if "rrhh_reemplazos" not in st.session_state:
-        st.session_state.rrhh_reemplazos = {}
-
-    if "rrhh_audit_log" not in st.session_state:
-        st.session_state.rrhh_audit_log = [
-            {
-                "timestamp": (datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")) - timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S"),
-                "usuario": "Admin",
-                "rol": "Administrador General",
-                "accion": "INICIO_SISTEMA",
-                "entidad": "Configuración Multiempresa",
-                "detalle": "Módulo de Recursos Humanos iniciado con 4 sucursales y 2 razones sociales.",
-            }
-        ]
-
-    if "rrhh_alertas_vistas" not in st.session_state:
-        st.session_state.rrhh_alertas_vistas = set()
-
-    if "rrhh_docs_modificados" not in st.session_state:
-        st.session_state.rrhh_docs_modificados = {}
-
-    if "rrhh_domicilios_ratificados" not in st.session_state:
-        st.session_state.rrhh_domicilios_ratificados = set()
-
-    if "rrhh_whatsapp_mensajes" not in st.session_state:
-        st.session_state.rrhh_whatsapp_mensajes = [
-            {
-                "id": "WAM-001",
-                "timestamp": HOY_AR.strftime("%d/%m/%Y 09:30"),
-                "destinatario": "Responsable Sucursal 1 (+54 9 11 4820-9112)",
-                "plantilla": "aviso_cobertura_minima",
-                "mensaje": "⚠️ *ALERTA OPERATIVA - EL LUCHADOR*\nSucursal Entrada: Se detectó 1 puesto sin cubrir en Carnicería para el turno tarde. Por favor autorizar reemplazo desde la plataforma.",
-                "estado": "Entregado",
-            }
-        ]
-
+def inicializar_session_state(personal, version_fuente):
+    if st.session_state.get("rrhh_version_fuente") != version_fuente:
+        for clave in list(st.session_state.keys()):
+            if clave.startswith("rrhh_"):
+                del st.session_state[clave]
+        st.session_state.rrhh_version_fuente = version_fuente
+    defaults = {"rrhh_vacaciones": [], "rrhh_anticipos": [], "rrhh_reemplazos": {},
+                "rrhh_audit_log": [], "rrhh_alertas_vistas": set(), "rrhh_docs_modificados": {},
+                "rrhh_domicilios_ratificados": set(), "rrhh_whatsapp_mensajes": []}
+    for clave, valor in defaults.items():
+        if clave not in st.session_state:
+            st.session_state[clave] = valor
 
 def antiguedad_a_cierre(ingreso, anio):
+    if pd.isna(ingreso):
+        return None
     corte = date(anio, 12, 31)
     return max(0, corte.year - ingreso.year - ((corte.month, corte.day) < (ingreso.month, ingreso.day)))
 
@@ -986,7 +1318,10 @@ def dias_aprobados_empleado(uid, anio):
     return sum(
         s["Dias"]
         for s in st.session_state.rrhh_vacaciones
-        if s["ID"] == uid and s["Estado"] == "Aprobada" and s["Inicio"].year == anio
+        if s["ID"] == uid
+        and s["Estado"] == "Aprobada"
+        and s["Inicio"].year == anio
+        and s.get("Tipo", "Vacaciones LCT") == "Vacaciones LCT"
     )
 
 
@@ -1015,7 +1350,8 @@ with st.sidebar:
             st.stop()
 
 try:
-    personal = cargar_personal(fuente)
+    contenido = fuente.read_bytes() if isinstance(fuente, Path) else fuente.getvalue()
+    personal = cargar_personal(contenido)
 except Exception as ex:
     st.error(f"Error procesando sueldos.xlsx: {ex}")
     st.stop()
@@ -1024,13 +1360,14 @@ if personal.empty:
     st.error("No se encontraron registros válidos de trabajadores.")
     st.stop()
 
-inicializar_session_state(personal)
+inicializar_session_state(personal, hashlib.sha256(contenido).hexdigest())
 
 # ============================================================
 # 9. BARRA LATERAL, PERFIL RBAC Y FILTROS GLOBALES
 # ============================================================
 
 with st.sidebar:
+    st.caption("Datos: sueldos.xlsx · Las operaciones de la demo se guardan solo en la sesión. El selector de perfil no es autenticación real.")
     st.markdown("### Perfil de Acceso (RBAC)")
     rol_activo = st.selectbox(
         "Rol Activo",
@@ -1095,32 +1432,32 @@ if base.empty:
 if pagina == "📊 Resumen Ejecutivo (KPIs)":
     cabecera(
         "Dashboard Ejecutivo de Recursos Humanos",
-        "Indicadores clave de dotación, presupuesto salarial, cumplimiento de turnos y semáforo de vencimientos en tiempo real.",
+        "Indicadores de personal, presupuesto salarial, calidad de datos y cobertura simulada.",
         "Etapa 1 · Panel Gerencial",
     )
 
     total_empleados = len(base)
-    salario_mensual_total = base["Mensual ARS"].sum()
+    salario_mensual_total = base["Mensual ARS"].sum(min_count=1)
     costos_totales = [costo_laboral_total(s) for s in base["Mensual ARS"]]
     costo_mensual_empresa = sum(c["costo_total_mensual"] for c in costos_totales)
     
     edades = [calcular_edad(nac) for nac in base["Fecha Nacimiento"]]
-    edad_promedio = sum(edades) / max(1, len(edades))
+    edad_promedio = promedio_conocidos(edades)
     
     antiguedades = [antiguedad_a_cierre(ing, anio_filtro) for ing in base["Fecha Ingreso"]]
-    antig_promedio = sum(antiguedades) / max(1, len(antiguedades))
+    antig_promedio = promedio_conocidos(antiguedades)
 
-    anticipos_activos = sum(a["Saldo Pendiente"] for a in st.session_state.rrhh_anticipos if a["Estado"] == "Aprobado")
+    anticipos_activos = sum(a["Saldo Pendiente"] for a in st.session_state.rrhh_anticipos if a["Estado"] == "Aprobado" and a["ID"] in set(base["ID"]))
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Headcount Activo", f"{total_empleados} pers.")
-    c2.metric("Masa Salarial Bruta", millones(salario_mensual_total))
-    c3.metric("Costo Total C/Cargas", millones(costo_mensual_empresa), help="Incluye Salarios + Cargas Patronales (~24%) + ART (~3%) + Provisiones SAC.")
+    c1.metric("Registros de Personal", f"{total_empleados} pers.")
+    c2.metric("Masa Salarial Base", millones(salario_mensual_total))
+    c3.metric("Costo total estimado", millones(costo_mensual_empresa), help="Incluye Salarios + Cargas Patronales (~24%) + ART (~3%) + Provisiones SAC.")
     c4.metric("Anticipos Activos", ars(anticipos_activos))
 
     c5, c6, c7, c8 = st.columns(4)
-    c5.metric("Edad Promedio", f"{edad_promedio:.1f} años")
-    c6.metric("Antigüedad Media", f"{antig_promedio:.1f} años")
+    c5.metric("Edad Promedio", f"{edad_promedio:.1f} años" if edad_promedio is not None else "Sin datos", help=f"Fechas registradas: {sum(pd.notna(v) for v in edades)}/{len(base)}")
+    c6.metric("Antigüedad Media", f"{antig_promedio:.1f} años" if antig_promedio is not None else "Sin datos")
     
     coberturas_locales = [evaluar_cobertura_sucursal(personal, s, HOY_AR) for s in base["Local"].unique()]
     if coberturas_locales:
@@ -1128,54 +1465,23 @@ if pagina == "📊 Resumen Ejecutivo (KPIs)":
         pct_cob = (1.0 - (df_cob_global["Déficit"].sum() / max(1, df_cob_global["Mínimo Requerido"].sum()))) * 100
     else:
         pct_cob = 100.0
-    c7.metric("Cumplimiento Dotación", f"{pct_cob:.1f} %", delta="Operativo" if pct_cob >= 90 else "-Alerta")
+    c7.metric("Cobertura simulada", f"{pct_cob:.1f} %", delta="Operativo" if pct_cob >= 90 else "-Alerta")
 
-    solic_pendientes = sum(1 for s in st.session_state.rrhh_vacaciones if s["Estado"] == "Pendiente")
+    solic_pendientes = sum(1 for s in st.session_state.rrhh_vacaciones if s["Estado"] == "Pendiente" and s["ID"] in set(base["ID"]))
     c8.metric("Vacaciones x Resolver", f"{solic_pendientes} sol.", delta=f"{solic_pendientes} pendientes", delta_color="inverse")
 
     st.divider()
 
-    st.markdown("### 🚦 Semáforo de Control Legal y Vencimientos")
-    domicilios_vencidos = [
-        r["ID"] for _, r in base.iterrows()
-        if (HOY_AR - r["Ultima Confirmacion Domicilio"]).days > 180 and r["ID"] not in st.session_state.rrhh_domicilios_ratificados
-    ]
-
-    sc1, sc2, sc3 = st.columns(3)
-    with sc1:
-        color_dom = "#EF4444" if domicilios_vencidos else "#22C55E"
-        st.markdown(
-            f"""
-            <div class="panel-card" style="border-left: 4px solid {color_dom};">
-                <div style="font-size:12px; color:{GRIS_TEXTO};">ACTUALIZACIÓN SEMESTRAL DOMICILIO</div>
-                <h3 style="margin:4px 0;">{len(domicilios_vencidos)} Trabajadores</h3>
-                <div style="font-size:13px; color:#C4CCE0;">Superan los 180 días sin ratificación formal de domicilio.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with sc2:
-        st.markdown(
-            f"""
-            <div class="panel-card" style="border-left: 4px solid #22C55E;">
-                <div style="font-size:12px; color:{GRIS_TEXTO};">COBERTURA RIESGOS DEL TRABAJO (ART)</div>
-                <h3 style="margin:4px 0;">100% Cobertura Activa</h3>
-                <div style="font-size:13px; color:#C4CCE0;">Pólizas de Prevención ART, La Segunda y Asociart al día.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with sc3:
-        st.markdown(
-            f"""
-            <div class="panel-card" style="border-left: 4px solid #F59E0B;">
-                <div style="font-size:12px; color:{GRIS_TEXTO};">PROVISIÓN DE SAC (AGUINALDO)</div>
-                <h3 style="margin:4px 0;">{millones(salario_mensual_total * 0.5)}</h3>
-                <div style="font-size:13px; color:#C4CCE0;">Compromiso semestral estimado para cuota Junio / Diciembre.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown("### Calidad de los datos del personal")
+    st.caption("Se excluyen partidas compartidas de Compras Verdulería y Encargado, y Natalia, según el alcance original de la demo. Producción se conserva por puesto aunque falte identificación.")
+    campos = {"Nombre y apellido": base["Identidad completa"], "DNI": base["DNI"].ne(""),
+              "Nacimiento": base["Fecha Nacimiento"].notna(), "Ingreso": base["Fecha Ingreso"].notna(),
+              "Domicilio": base["Domicilio"].ne(""), "Celular": base["Celular"].ne(""),
+              "Jornada": base["Jornada horaria"].ne(""), "Días laborables": base["Días laborables"].ne(""),
+              "Salario mensual": base["Mensual ARS"].notna(), "Salario en recibo": base["Salario en recibo de sueldo"].notna()}
+    calidad = pd.DataFrame([{"Campo": k, "Registrados": int(v.sum()), "Pendientes": int((~v).sum())} for k,v in campos.items()])
+    st.dataframe(calidad, hide_index=True, use_container_width=True)
+    st.caption("Cobertura ART, antigüedad y cumplimiento documental no verificables con el Excel. Costos patronales y turnos no registrados son estimaciones de la demo.")
 
     st.markdown("### Desglose y Distribución Operativa")
     g1, g2 = st.columns(2)
@@ -1187,15 +1493,10 @@ if pagina == "📊 Resumen Ejecutivo (KPIs)":
             y="Dotación",
             color="Razón social",
             barmode="group",
-            title="Dotación Activa por Sucursal y Razón Social",
+            title="Registros de Personal por Sucursal y Razón Social",
             color_discrete_map={"Misión": AZUL_PRIMARIO, "Il Comendatori": NARANJA},
         )
-        fig_suc.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font_color=BLANCO,
-            margin=dict(t=40, b=20, l=20, r=20),
-        )
+        aplicar_estilo_plotly(fig_suc)
         st.plotly_chart(fig_suc, use_container_width=True)
 
     with g2:
@@ -1203,18 +1504,13 @@ if pagina == "📊 Resumen Ejecutivo (KPIs)":
         art_tot = sum(c["art"] for c in costos_totales)
         sac_tot = sum(c["provision_sac"] + c["cargas_sac"] for c in costos_totales)
         fig_costos = px.pie(
-            names=["Sueldo Bruto Base", "Cargas Patronales (24%)", "ART (3%)", "Provisión SAC + Cargas"],
+            names=["Salario Mensual Base", "Cargas Patronales (24%)", "ART (3%)", "Provisión SAC + Cargas"],
             values=[salario_mensual_total, cargas_tot, art_tot, sac_tot],
-            title="Composición del Costo Laboral Total Empresa",
+            title="Composición estimada del costo laboral",
             color_discrete_sequence=[AZUL_PRIMARIO, "#4B7DFF", NARANJA, "#FCD34D"],
             hole=0.45,
         )
-        fig_costos.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font_color=BLANCO,
-            margin=dict(t=40, b=20, l=20, r=20),
-        )
+        aplicar_estilo_plotly(fig_costos)
         st.plotly_chart(fig_costos, use_container_width=True)
 
 
@@ -1223,157 +1519,84 @@ if pagina == "📊 Resumen Ejecutivo (KPIs)":
 # ============================================================
 
 elif pagina == "🗂️ Legajos Digitales":
-    cabecera(
-        "Legajos Digitales y Ficha Integral del Trabajador",
-        "Registro laboral centralizado: datos personales, contractuales, historial, cobertura médica ART y repositorio documental.",
-        "Sección 4.1 a 4.3 · Legajo Digital",
-    )
+    cabecera("Legajos Digitales y Ficha Integral del Trabajador", "Datos del Excel, información pendiente y documentos de la sesión.", "Sección 4.1 a 4.3 · Legajo Digital")
+    busqueda = st.text_input("Buscar trabajador por nombre, puesto, ID o DNI")
+    listado = base.loc[base.apply(lambda r: norm(busqueda) in norm(" ".join(str(r[c]) for c in ["Nombre", "Rol", "ID", "DNI"])), axis=1)]
+    st.dataframe(listado[["ID", "Nombre", "Local", "Rol", "Identidad completa"]], hide_index=True, use_container_width=True)
+    if listado.empty:
+        st.info("No se encontraron coincidencias.")
+        st.stop()
+    seleccion_id = st.selectbox("Seleccionar trabajador", listado["ID"].tolist(), format_func=lambda x: f"{x} — {listado.loc[listado['ID']==x, 'Nombre'].iloc[0]}")
+    emp = listado.loc[listado["ID"] == seleccion_id].iloc[0]
+    st.subheader(emp["Nombre"])
+    a,b,c,d = st.columns(4)
+    a.metric("Sucursal", emp["Local"])
+    b.metric("Salario mensual calculado (ARS)", ars(emp["Mensual ARS"]))
+    c.metric("Semanal registrado (ARS)", ars(emp["Semanal"]))
+    d.metric("Semanal real (ARS)", ars(emp["semanal real"]))
+    if not emp["Identidad completa"]:
+        st.warning("Nombre o apellido pendiente de completar.")
 
-    seleccion_id = st.selectbox(
-        "Seleccionar Colaborador para inspeccionar Legajo",
-        base["ID"].tolist(),
-        format_func=lambda x: f"{x} — {base.loc[base['ID']==x, 'Nombre'].iloc[0]} ({base.loc[base['ID']==x, 'Local'].iloc[0]} · {base.loc[base['ID']==x, 'Rol'].iloc[0]})",
-    )
-
-    emp = base.loc[base["ID"] == seleccion_id].iloc[0]
-    anios_ant, meses_ant, dias_ant, antig_str = calcular_antiguedad_exacta(emp["Fecha Ingreso"])
-    edad = calcular_edad(emp["Fecha Nacimiento"])
-
-    col_av, col_det, col_sal = st.columns([1, 2.5, 1.5])
-    with col_av:
-        st.markdown(
-            f"""
-            <div style="background:{SUPERFICIE}; border:1px solid {AZUL_PRIMARIO}; border-radius:18px; padding:20px; text-align:center;">
-                <div style="font-size:38px;">👤</div>
-                <h3 style="margin:8px 0 2px; font-size:18px;">{emp["Nombre"]}</h3>
-                <span class="badge badge-blue">{emp["ID"]}</span>
-                <div style="margin-top:8px; font-size:12px; color:{GRIS_TEXTO};">{emp["Categoria Convenio"]}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with col_det:
-        st.markdown(
-            f"""
-            <div class="panel-card" style="height:100%;">
-                <h4 style="margin-top:0;">Datos Contractuales & Radicación</h4>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:13.5px;">
-                    <div><b>Razón Social:</b> {emp["Razón social"]}</div>
-                    <div><b>Sucursal:</b> {emp["Local"]} (Sucursal {SUCURSALES_INFO.get(emp["Local"], {}).get("numero", "—")})</div>
-                    <div><b>Unidad de Negocio:</b> {emp["Unidad de Negocio"]}</div>
-                    <div><b>Puesto / Rol:</b> {emp["Rol"]}</div>
-                    <div><b>Fecha de Ingreso:</b> {emp["Fecha Ingreso"].strftime('%d/%m/%Y')}</div>
-                    <div><b>Antigüedad Exacta:</b> <span style="color:#60A5FA; font-weight:700;">{antig_str}</span></div>
-                    <div><b>Tipo Contrato:</b> Tiempo Indeterminado (LCT)</div>
-                    <div><b>Estado:</b> <span class="badge badge-green">ACTIVO</span></div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with col_sal:
-        costo_emp = costo_laboral_total(emp["Mensual ARS"])
-        st.markdown(
-            f"""
-            <div class="panel-card" style="height:100%;">
-                <h4 style="margin-top:0;">Esquema Remuneratorio</h4>
-                <div style="font-size:13px; color:{GRIS_TEXTO};">Salario Mensual Bruto:</div>
-                <div style="font-size:22px; font-weight:800; color:#FFF; margin-bottom:6px;">{ars(emp["Mensual ARS"])}</div>
-                <div style="font-size:12.5px; color:#A7BEE8;">Semanal Equivalente: {ars(emp["Semanal equivalente ARS"])}</div>
-                <div style="font-size:12.5px; color:#A7BEE8;">Costo Total Empresa: {ars(costo_emp["costo_total_mensual"])}/mes</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    t_pers, t_art, t_docs, t_hist = st.tabs([
-        "👤 Datos Personales & Domicilio",
-        "🏥 Cobertura Médica & ART",
-        "📂 Repositorio de Documentación (Legajo)",
-        "📜 Historial Laboral & Antecedentes",
-    ])
+    t_pers,t_lab,t_sal,t_salud,t_art,t_docs,t_hist = st.tabs(["Datos personales", "Datos laborales", "Remuneración", "Cobertura médica", "ART / riesgo laboral", "Documentos", "Historial"])
+    def ficha(pares):
+        st.dataframe(pd.DataFrame(pares, columns=["Campo", "Información"]).assign(Información=lambda x: x["Información"].map(mostrar_dato)), hide_index=True, use_container_width=True)
 
     with t_pers:
-        c_p1, c_p2 = st.columns(2)
-        with c_p1:
-            st.markdown("#### Identificación & Familia")
-            st.write(f"**DNI:** {emp['DNI']}")
-            st.write(f"**CUIL:** `{emp['CUIL']}` (Clave Tributaria Laboral Argentina)")
-            st.write(f"**Fecha de Nacimiento:** {emp['Fecha Nacimiento'].strftime('%d/%m/%Y')} ({edad} años)")
-            st.write(f"**Familiares a Cargo:** {emp['Familiares']}")
-            st.write(f"**Contacto de Emergencia:** {emp['Contacto Emergencia']}")
+        edad = calcular_edad(emp["Fecha Nacimiento"])
+        ficha([("Nombre",emp["Nombre Excel"]),("Apellido",emp["Apellido"]),("DNI",emp["DNI"]),("CUIL",emp["CUIL"]),("Nacimiento",mostrar_fecha(emp["Fecha Nacimiento"])),("Edad",edad),("Calle",emp["Calle"]),("Número",emp["Nro"]),("Departamento",emp["Depto"]),("Localidad",emp["Localidad"]),("Celular",emp["Celular"]),("Teléfono fijo",emp["Telefono fijo"]),("Familiares",emp["Familiares"]),("Contacto emergencia",emp["Contacto Emergencia"])])
 
-        with c_p2:
-            st.markdown("#### Control Semestral de Domicilio")
-            dias_desde_act = (HOY_AR - emp["Ultima Confirmacion Domicilio"]).days
-            ratificado = emp["ID"] in st.session_state.rrhh_domicilios_ratificados
-            
-            st.write(f"**Domicilio Declarado:** {emp['Domicilio']}")
-            st.write(f"**Última Actualización:** {emp['Ultima Confirmacion Domicilio'].strftime('%d/%m/%Y')} (hace {dias_desde_act} días)")
+    with t_lab:
+        _,_,_,ant = calcular_antiguedad_exacta(emp["Fecha Ingreso"])
+        ficha([("Código original",emp["Empleados"]),("Razón social",emp["Razón social"]),("Sucursal",emp["Sucursal"]),("Local",emp["Local"]),("Rol",emp["Rol"]),("Unidad de negocio",emp["Unidad de Negocio"]),("Atiende al público",emp["Atiende al publico?"]),("Fecha ingreso",mostrar_fecha(emp["Fecha Ingreso"])),("Reingreso 1",mostrar_fecha(emp["Fecha Reingreso 1"])),("Reingreso 2",mostrar_fecha(emp["Fecha Reingreso 2"])),("Antigüedad",ant),("Horas diarias",emp["Horas diarias"]),("Horas semanales",emp["Horas semanales"]),("Jornada horaria",emp["Jornada horaria"]),("Días laborables",emp["Días laborables"]),("Categoría convenio",emp["Categoria Convenio"]),("Estado laboral",emp["Estado Laboral"])])
 
-            if dias_desde_act > 180 and not ratificado:
-                st.warning("⚠️ **Alerta Semestral:** Han transcurrido más de 180 días desde la última ratificación formal de domicilio (Art. 4.1).")
-                if st.button("✅ Ratificar Domicilio Semestral Ahora", key=f"btn_rat_{emp['ID']}", type="primary"):
-                    st.session_state.rrhh_domicilios_ratificados.add(emp["ID"])
-                    registrar_auditoria(
-                        rol_activo, rol_activo, "RATIFICACION_DOMICILIO", emp["ID"],
-                        f"Ratificación de domicilio confirmada para {emp['Nombre']} ({emp['Domicilio']})."
-                    )
-                    st.success("Domicilio ratificado exitosamente. Alerta regularizada.")
-                    st.rerun()
-            else:
-                st.success("✓ Domicilio ratificado y vigente dentro del período semestral reglamentario.")
+    with t_sal:
+        cols = ["Salario en recibo de sueldo", "Semanal", "Salario mensual Calculo", "Aguinaldo junio", "Aguinaldo diciembre", "Total (sin aguinaldo)", "semanal real", "Mensual real ARS", "Total real (sin aguinaldo)", "Diferencia"]
+        ficha([(col,ars(emp[col]) if pd.notna(emp[col]) else "Sin registrar") for col in cols]+[("Semanas 2026",emp["Semanas 2026"]),("Semanal equivalente calculado",ars(emp["Semanal equivalente ARS"])),("Anual base calculada",ars(emp["Anual base ARS"]))])
+        st.caption("Cecilia indicó que el salario liquidado puede diferir del realmente percibido. Por eso se exponen por separado salario base, semanal registrado y semanal real.")
+
+    with t_salud:
+        st.info("La cobertura médica no es lo mismo que la ART. Aquí se concentra obra social / prepaga y datos de afiliación del trabajador.")
+        ficha([("Obra social", emp["Obra Social"]), ("Prepaga", emp["Prepaga"]), ("N° de afiliado", emp["Nro Afiliado Salud"]), ("Examen preocupacional", emp["Examen preocupacional"])])
 
     with t_art:
-        st.markdown("#### Cobertura de Riesgos del Trabajo y Salud Asignada")
-        ca1, ca2 = st.columns(2)
-        with ca1:
-            st.write(f"**Compañía Aseguradora (ART):** {emp['ART Aseguradora']}")
-            st.write(f"**Número de Póliza:** `{emp['ART Poliza']}`")
-            st.write(f"**Vigencia de Cobertura:** Hasta {emp['ART Vencimiento'].strftime('%d/%m/%Y')}")
-            st.write("**Estado de Afiliación:** Cobertura Plena Activa")
-        with ca2:
-            st.write(f"**Obra Social Sindical:** {emp['Obra Social']}")
-            st.write("**Plan de Cobertura:** Prestación Médica Obligatoria (PMO) + Seguro de Sepelio")
-            st.write(f"**Último Examen Periódico de Salud:** Realizado ({emp['Fecha Ingreso'].year + 1})")
+        st.info("La ART se trata como bloque separado, tal como pidió Cecilia. Sirve para accidentes laborales o in itinere, con seguimiento diferenciado respecto de la cobertura médica.")
+        ficha([
+            ("ART aseguradora", emp["ART Aseguradora"]),
+            ("Póliza ART", emp["ART Poliza"]),
+            ("Vencimiento póliza", mostrar_fecha(emp["ART Vencimiento"])),
+            ("Estado de caso ART", emp["ART Estado Caso"]),
+            ("Fecha de denuncia", emp["ART Fecha Denuncia"]),
+            ("Días a cargo empleador", emp["ART Días a cargo empleador"]),
+            ("Días a cargo aseguradora", emp["ART Días a cargo aseguradora"]),
+        ])
+        st.caption("Regla operativa sugerida en la demo: en licencias ART prolongadas, los primeros 10 días quedan a cargo del empleador y el excedente debe tramitarse con la aseguradora.")
 
     with t_docs:
-        st.markdown("#### Repositorio de Documentación del Legajo Digital")
-        st.caption("Verificación de cumplimiento de instrumentos legales obligatorios.")
+        documentos = ["Contrato de trabajo", "DNI frente y dorso", "Constancia CUIL", "Alta laboral", "Certificado médico", "Constancia de EPP", "Recibo de haberes"]
+        repo = st.session_state.rrhh_docs_modificados
 
-        documentos_legajo = [
-            ("Contrato de Trabajo Firmado (LCT Art. 90)", "Vigente / Completo", "14/03/2024"),
-            ("Fotocopia DNI Frente y Dorso", "Vigente / Completo", "14/03/2024"),
-            ("Constancia de CUIL (ARCA / ANSES)", "Vigente / Completo", "14/03/2024"),
-            ("Alta Temprana AFIP (F. 885/A)", "Vigente / Completo", "14/03/2024"),
-            ("Certificado Médico Preocupacional / Periódico", "Vigente / Completo", "12/05/2024"),
-            ("Constancia Entrega de Uniforme y EPP (Res. SRT 299/11)", "Vigente / Completo", "10/01/2026"),
-            ("Recibo de Haberes Último Período Firmado", "Vigente / Completo", "05/11/2026"),
+        st.markdown("#### Semáforo de control legal y vencimientos")
+        controles = [
+            {"Control": "Identidad completa", "Estado": "Cumple" if emp["Identidad completa"] else "Pendiente", "Comentario": "Nombre y apellido completos" if emp["Identidad completa"] else "Falta completar nombre o apellido"},
+            {"Control": "Fecha de ingreso", "Estado": "Cumple" if pd.notna(emp["Fecha Ingreso"]) else "Pendiente", "Comentario": mostrar_fecha(emp["Fecha Ingreso"])},
+            {"Control": "CUIL", "Estado": "Pendiente" if mostrar_dato(emp["CUIL"]) == "Sin registrar" else "Cumple", "Comentario": mostrar_dato(emp["CUIL"])},
+            {"Control": "Cobertura médica", "Estado": "Pendiente" if mostrar_dato(emp["Obra Social"]) == "Sin registrar" and mostrar_dato(emp["Prepaga"]) == "Sin registrar" else "Cumple", "Comentario": f"OS: {mostrar_dato(emp['Obra Social'])} · Prepaga: {mostrar_dato(emp['Prepaga'])}"},
+            {"Control": "ART", "Estado": "Pendiente" if mostrar_dato(emp["ART Aseguradora"]) == "Sin registrar" else "Cumple", "Comentario": f"Aseguradora: {mostrar_dato(emp['ART Aseguradora'])}"},
+            {"Control": "Documentación esencial adjunta", "Estado": "Cumple" if all((seleccion_id, d) in repo for d in ["Contrato de trabajo", "DNI frente y dorso", "Constancia CUIL"]) else "Parcial", "Comentario": f"Adjuntos en sesión: {sum((seleccion_id, d) in repo for d in documentos)}/{len(documentos)}"},
         ]
+        st.dataframe(pd.DataFrame(controles), hide_index=True, use_container_width=True)
 
-        df_docs = pd.DataFrame(documentos_legajo, columns=["Documento Obligatorio", "Estado", "Fecha Registro"])
-        st.dataframe(df_docs, use_container_width=True, hide_index=True)
-
-        with st.expander("📤 Adjuntar o Actualizar Documento del Legajo"):
-            tipo_doc = st.selectbox("Tipo de Documento", [d[0] for d in documentos_legajo])
-            archivo = st.file_uploader(f"Cargar archivo digital para {emp['Nombre']}", type=["pdf", "png", "jpg"])
-            if st.button("Guardar en Repositorio"):
-                if archivo:
-                    st.success(f"Documento '{tipo_doc}' cargado y auditado para {emp['Nombre']}.")
-                    registrar_auditoria(rol_activo, rol_activo, "CARGA_DOCUMENTO", emp["ID"], f"Documento {tipo_doc} subido.")
-                else:
-                    st.info("Simulación: Documento verificado y actualizado.")
+        st.dataframe(pd.DataFrame([{"Documento":d,"Estado":"Adjunto en sesión" if (seleccion_id,d) in repo else "No aportado","Archivo":repo.get((seleccion_id,d),{}).get("nombre", "—")} for d in documentos]), hide_index=True, use_container_width=True)
+        tipo_doc = st.selectbox("Tipo de documento", documentos)
+        archivo = st.file_uploader("Adjuntar documento (solo sesión)",type=["pdf","png","jpg"],key=f"doc_{seleccion_id}")
+        if st.button("Guardar documento en sesión", disabled=archivo is None):
+            repo[(seleccion_id,tipo_doc)] = {"nombre":archivo.name,"datos":archivo.getvalue()}
+            registrar_auditoria(rol_activo,rol_activo,"CARGA_DOCUMENTO",seleccion_id,tipo_doc)
+            st.rerun()
 
     with t_hist:
-        st.markdown("#### Historial Laboral, Traslados y Evaluaciones")
-        st.markdown(
-            f"""
-            - **{emp['Fecha Ingreso'].strftime('%d/%m/%Y')}:** Alta laboral formal en **{emp['Razón social']}**, sucursal **{emp['Local']}**.
-            - **15/06/2024:** Asignación de categoría **{emp['Categoria Convenio']}**.
-            - **10/01/2025:** Entrega de uniforme reglamentario y elementos de protección personal (EPP).
-            - **01/03/2026:** Ratificación de jornada contractual en **{emp['Unidad de Negocio']}**.
-            """
-        )
+        ficha([(k,mostrar_fecha(emp[k])) for k in ["Fecha Ingreso", "Fecha Reingreso 1", "Fecha Reingreso 2"]])
+        st.caption("Aquí puede consolidarse más adelante el historial cronológico de ausencias, accidentes, enfermedad, sanciones o incidencias del legajo.")
 
 
 # ============================================================
@@ -1383,85 +1606,84 @@ elif pagina == "🗂️ Legajos Digitales":
 elif pagina == "📅 Calendario & Turnos":
     cabecera(
         "Calendario Laboral Oficial & Planificador de Turnos",
-        "Matriz interactiva con feriados nacionales argentinos, rotación de horarios, control de cobertura mínima y sustitución de personal.",
+        "Vista operativa por trabajador con matriz semanal o mensual, feriados nacionales, control de cobertura y sustitución de personal.",
         "Sección 4.4 · Turnos y Cobertura",
     )
 
-    c1, c2, c3, c4 = st.columns([1, 1, 1, 1])
+    st.info("Jornadas y días del Excel tienen prioridad. Si no existen datos explícitos, la demo marca el turno como simulado para no dejar huecos visuales.")
+    c1, c2, c3, c4 = st.columns([1, 1, 1, 1.1])
     mes_sel = c1.selectbox("Mes", range(1, 13), index=HOY_AR.month - 1, format_func=lambda m: MESES[m - 1])
     sucursal_sel = c2.selectbox("Sucursal", sorted(base["Local"].unique().tolist()))
     area_sel = c3.selectbox("Unidad de Negocio", ["Todas"] + UNIDADES_NEGOCIO)
-    vista_modo = c4.selectbox("Vista del Planificador", ["Mensual", "Semanal", "Control de Cobertura Diaria"])
+    vista_modo = c4.selectbox("Vista del Planificador", ["Semanal", "Mensual", "Control de Cobertura Diaria"])
 
     feriados_anio = feriados_argentina(anio_filtro)
     sub_personal = base.loc[base["Local"] == sucursal_sel].copy()
     if area_sel != "Todas":
         sub_personal = sub_personal.loc[sub_personal["Unidad de Negocio"] == area_sel]
 
+    if sub_personal.empty:
+        st.warning("No hay personal cargado para esa combinación de sucursal y unidad de negocio.")
+        st.stop()
+
     if vista_modo == "Control de Cobertura Diaria":
         st.markdown("### Verificación de Dotación Mínima Operativa por Turno")
         dia_inspeccion = st.date_input("Fecha a evaluar", value=HOY_AR)
         df_cob = evaluar_cobertura_sucursal(personal, sucursal_sel, dia_inspeccion)
-
         st.dataframe(df_cob, use_container_width=True, hide_index=True)
 
-        hay_deficit = df_cob["Déficit"].sum() > 0
+        hay_deficit = not df_cob.empty and df_cob["Déficit"].sum() > 0
         if hay_deficit:
             st.error(f"⚠️ **Alerta Operativa:** Se detectaron puestos descubiertos en la sucursal {sucursal_sel} para el día {dia_inspeccion.strftime('%d/%m/%Y')}.")
         else:
-            st.success(f"✓ Cobertura óptima asegurada en todas las áreas operativas de {sucursal_sel}.")
+            st.success(f"✓ Cobertura suficiente en la simulación de las áreas registradas de {sucursal_sel}.")
 
-        with st.expander("🔄 Asignar Reemplazo Operativo para Contingencias"):
-            col_rep1, col_rep2 = st.columns(2)
-            with col_rep1:
-                emp_reemplazado = st.selectbox("Colaborador ausente / a cubrir", sub_personal["ID"].tolist(), format_func=lambda x: f"{x} - {sub_personal.loc[sub_personal['ID']==x, 'Nombre'].iloc[0]}")
-            with col_rep2:
-                otros_disp = personal.loc[(personal["ID"] != emp_reemplazado)]
-                emp_sustituto = st.selectbox("Colaborador que asume el reemplazo", otros_disp["ID"].tolist(), format_func=lambda x: f"{x} - {otros_disp.loc[otros_disp['ID']==x, 'Nombre'].iloc[0]} ({otros_disp.loc[otros_disp['ID']==x, 'Local'].iloc[0]})")
-
-            if st.button("Confirmar Reemplazo Operativo"):
-                clave = (dia_inspeccion, emp_reemplazado)
-                st.session_state.rrhh_reemplazos[clave] = {
-                    "sustituto": emp_sustituto,
-                    "turno": "Apertura (07:00-15:00)",
-                }
-                registrar_auditoria(rol_activo, rol_activo, "ASIGNACION_REEMPLAZO", emp_reemplazado, f"Reemplazado por {emp_sustituto} el {dia_inspeccion.strftime('%d/%m')}.")
-                st.success("Reemplazo registrado y coordinado en el plan de turnos.")
-                st.rerun()
+        with st.expander("🔄 Consultar candidatos para contingencias"):
+            emp_reemplazado = st.selectbox("Colaborador a cubrir", sub_personal["ID"].tolist(), format_func=lambda x: f"{x} - {sub_personal.loc[sub_personal['ID']==x, 'Nombre'].iloc[0]}")
+            ausente = sub_personal.loc[sub_personal["ID"] == emp_reemplazado].iloc[0]
+            candidatos = personal.loc[(personal["ID"] != emp_reemplazado) & (personal["Unidad de Negocio"] == ausente["Unidad de Negocio"])].copy()
+            candidatos["Turno previsto"] = candidatos["ID"].map(lambda uid: turno_efectivo(uid, dia_inspeccion))
+            st.dataframe(candidatos[["Nombre", "Local", "Rol", "Turno previsto"]], hide_index=True, use_container_width=True)
+            st.caption("Validar disponibilidad, descansos y cobertura de origen antes de autorizar un reemplazo real.")
 
     else:
-        st.markdown(f"### Malla Mensual de Turnos — {MESES[mes_sel - 1]} {anio_filtro} ({sucursal_sel})")
         cal = calendar.Calendar(firstweekday=0)
-        dias_mes = cal.monthdatescalendar(anio_filtro, mes_sel)
+        semanas_mes = cal.monthdatescalendar(anio_filtro, mes_sel)
 
-        cols_head = st.columns(7)
-        for i, nombre_dia in enumerate(DIAS_SEMANA):
-            cols_head[i].markdown(f"<div style='text-align:center; font-weight:700; color:{AZUL_PRIMARIO};'>{nombre_dia}</div>", unsafe_allow_html=True)
+        st.markdown(f"### Matriz de turnos del personal — {sucursal_sel}")
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric("Trabajadores en la vista", entera(len(sub_personal)))
+        k2.metric("Con jornada registrada", entera(sub_personal['Jornada horaria'].astype(str).str.strip().replace({'nan': ''}).ne('').sum()))
+        k3.metric("Con días laborables declarados", entera(sub_personal['Días laborables'].astype(str).str.strip().replace({'nan': ''}).ne('').sum()))
+        k4.metric("Mes seleccionado", MESES[mes_sel - 1])
 
-        for semana in dias_mes:
-            cols_sem = st.columns(7)
-            for j, d in enumerate(semana):
-                with cols_sem[j]:
-                    es_mes = (d.month == mes_sel)
-                    es_feriado = d in feriados_anio
-                    es_hoy = (d == HOY_AR)
-                    clase_extra = "holiday" if es_feriado else ("today" if es_hoy else ("other" if not es_mes else ""))
+        st.caption("La vista semanal muestra una sola semana con columnas de lunes a domingo. La vista mensual apila todas las semanas del mes con el mismo formato para facilitar la lectura por aprobador.")
 
-                    html_cal = f'<div class="calbox {clase_extra}">'
-                    html_cal += f'<div class="caldate">{d.day}</div>'
-                    if es_feriado:
-                        html_cal += f'<div class="calbadge-feriado">🇦🇷 {feriados_anio[d]}</div>'
-
-                    if es_mes:
-                        for _, emp_it in sub_personal.head(3).iterrows():
-                            t = turno_efectivo(emp_it["ID"], d)
-                            badge_style = "calshift-warning" if "Vacaciones" in t or "Descanso" in t else "calshift"
-                            html_cal += f'<div class="{badge_style}">{emp_it["Nombre"].split()[0]}: {t.split()[0]}</div>'
-                        if len(sub_personal) > 3:
-                            html_cal += f'<div style="font-size:10px; color:{GRIS_TEXTO};">+{len(sub_personal)-3} más</div>'
-
-                    html_cal += '</div>'
-                    st.markdown(html_cal, unsafe_allow_html=True)
+        if vista_modo == "Semanal":
+            semana_sel = st.selectbox(
+                "Semana del mes",
+                range(len(semanas_mes)),
+                format_func=lambda i: f"Semana {i + 1} · {semanas_mes[i][0]:%d/%m} – {semanas_mes[i][-1]:%d/%m}",
+            )
+            semana = semanas_mes[semana_sel]
+            html_matriz = render_matriz_turnos(
+                sub_personal,
+                semana,
+                feriados_anio,
+                titulo=f"Semana {semana_sel + 1}: {semana[0]:%d/%m} – {semana[-1]:%d/%m}",
+                subtitulo=f"Sucursal {sucursal_sel} · {MESES[mes_sel - 1]} {anio_filtro} · {len(sub_personal)} trabajadores",
+            )
+            st.markdown(html_matriz, unsafe_allow_html=True)
+        else:
+            for idx, semana in enumerate(semanas_mes, start=1):
+                html_matriz = render_matriz_turnos(
+                    sub_personal,
+                    semana,
+                    feriados_anio,
+                    titulo=f"Semana {idx}: {semana[0]:%d/%m} – {semana[-1]:%d/%m}",
+                    subtitulo=f"Vista mensual consolidada · {MESES[mes_sel - 1]} {anio_filtro}",
+                )
+                st.markdown(html_matriz, unsafe_allow_html=True)
 
 
 # ============================================================
@@ -1470,9 +1692,9 @@ elif pagina == "📅 Calendario & Turnos":
 
 elif pagina == "🏖️ Vacaciones & Régimen LCT":
     cabecera(
-        "Gestión de Vacaciones y Plus Vacacional (Ley 20.744)",
-        "Escala de antigüedad legal, verificación automática de dotación mínima, cálculo de plus vacacional y flujo de aprobaciones.",
-        "Sección 4.5 · Vacaciones LCT",
+        "Gestión de Vacaciones, Licencias y Plus Vacacional (Ley 20.744)",
+        "Escala de antigüedad legal, seguimiento de vacaciones y otras licencias, verificación de dotación mínima, cálculo de plus vacacional y flujo de aprobaciones.",
+        "Sección 4.5 · Vacaciones LCT y Licencias",
     )
 
     with st.expander("📖 Marco Legal Argentino: Régimen de Vacaciones LCT N° 20.744"):
@@ -1484,19 +1706,19 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
               - 10 < Antigüedad <= 20 años: 28 días corridos
               - Antigüedad > 20 años: 35 días corridos
             - **Cálculo del Plus Vacacional (Art. 155 LCT):**
-              El día de vacación se remunera dividiendo el sueldo mensual por 25 (y no por 30):
-              $$\\text{Plus Vacacional} = \\left(\\frac{\\text{Sueldo Mensual}}{25} - \\frac{\\text{Sueldo Mensual}}{30}\\right) \\times \\text{Días de Licencia}$$
-            - **Fecha de Pago Obligatoria:** Las vacaciones deben ser liquidadas y abonadas *antes de la iniciación de la licencia*.
+              El día de vacación se remunera dividiendo el sueldo mensual por 25 (y no por 30).
+            - **Observación funcional pedida por Cecilia:** la vista aprobador debe permitir detectar solapes, backups y cobertura por persona. Además, la **ART** debe tratarse como licencia separada respecto de la cobertura médica.
             """
         )
 
-    tab_solic, tab_matriz = st.tabs(["📝 Registro & Simulación de Solicitud", "📊 Matriz de Saldos por Empleado"])
+    tab_solic, tab_matriz, tab_aprob = st.tabs(["📝 Registro & Simulación de Solicitud", "📊 Matriz de Saldos por Empleado", "🗓️ Vista Aprobador"])
 
     with tab_solic:
-        st.markdown("### Nueva Solicitud de Licencia Anual")
+        st.markdown("### Nueva Solicitud de Licencia")
         col_s1, col_s2 = st.columns(2)
 
         with col_s1:
+            tipo_licencia = st.selectbox("Tipo de solicitud", ["Vacaciones LCT", "Enfermedad / Certificado", "ART / Accidente laboral", "Otra licencia"])
             emp_vac_id = st.selectbox(
                 "Colaborador",
                 base["ID"].tolist(),
@@ -1506,28 +1728,58 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
             antig_anios = antiguedad_a_cierre(emp_sel["Fecha Ingreso"], anio_filtro)
             cupo_legal = escala_vacaciones_lct(antig_anios)
             dias_usados = dias_aprobados_empleado(emp_vac_id, anio_filtro)
-            saldo_disp = max(0, cupo_legal - dias_usados)
+            saldo_disp = max(0, cupo_legal - dias_usados) if cupo_legal is not None else None
 
-            st.info(f"**Antigüedad LCT:** {antig_anios} años · **Cupo Anual Legal:** {cupo_legal} días · **Saldo Disponible:** {saldo_disp} días")
+            if tipo_licencia == "Vacaciones LCT":
+                if saldo_disp is None:
+                    st.warning("Fecha de ingreso sin registrar: cupo legal y saldo no verificables. Puede simular una solicitud, pero no aprobarla como licencia validada.")
+                else:
+                    st.info(f"Antigüedad: {antig_anios} años · Cupo estimado: {cupo_legal} días · Saldo: {saldo_disp} días")
+            elif tipo_licencia == "ART / Accidente laboral":
+                st.info("Seguimiento diferencial solicitado por Cecilia: la licencia ART se registra aparte y puede distinguir días a cargo del empleador y días recuperables vía aseguradora.")
+            else:
+                st.info("Esta licencia se registra en la bandeja y en la vista aprobador, sin consumir cupo legal de vacaciones.")
 
-            inicio_vac = st.date_input("Fecha Inicio de Licencia", value=HOY_AR + timedelta(days=10))
-            dias_pedidos = st.number_input("Días Corridos Solicitados", min_value=1, max_value=max(1, saldo_disp), value=min(14, max(1, saldo_disp)))
+            inicio_vac = st.date_input("Fecha Inicio", value=HOY_AR + timedelta(days=10))
+            max_dias = max(1, saldo_disp) if tipo_licencia == "Vacaciones LCT" and saldo_disp is not None else 35
+            valor_default = min(14, max_dias) if tipo_licencia == "Vacaciones LCT" else 3
+            dias_pedidos = st.number_input("Días Corridos Solicitados", min_value=1, max_value=max_dias, value=valor_default)
             fin_vac = inicio_vac + timedelta(days=int(dias_pedidos) - 1)
 
         with col_s2:
-            st.markdown("#### Impacto Salarial Estimado (LCT Art. 155)")
-            jornal_vac, monto_total_vac, plus_neto = calcular_plus_vacacional(emp_sel["Mensual ARS"], int(dias_pedidos))
-            fecha_pago_prev = inicio_vac - timedelta(days=3)
+            if tipo_licencia == "Vacaciones LCT":
+                st.markdown("#### Impacto Salarial Estimado (LCT Art. 155)")
+                jornal_vac, monto_total_vac, plus_neto = calcular_plus_vacacional(emp_sel["Mensual ARS"], int(dias_pedidos))
+                fecha_pago_prev = inicio_vac - timedelta(days=3)
 
-            st.write(f"**Período Solicitado:** {inicio_vac.strftime('%d/%m/%Y')} al {fin_vac.strftime('%d/%m/%Y')} ({dias_pedidos} días)")
-            st.write(f"**Jornal Vacacional (Base 25):** {ars(jornal_vac)} / día")
-            st.write(f"**Monto Total Vacaciones a Liquidar:** {ars(monto_total_vac)}")
-            st.metric("Plus Vacacional Neto Estimado", ars(plus_neto), help="Diferencia adicional a favor del trabajador por base divisor 25.")
-            st.write(f"**Fecha Límite Prevista de Pago:** `{fecha_pago_prev.strftime('%d/%m/%Y')}`")
+                st.write(f"**Período Solicitado:** {inicio_vac.strftime('%d/%m/%Y')} al {fin_vac.strftime('%d/%m/%Y')} ({dias_pedidos} días)")
+                st.write(f"**Jornal Vacacional (Base 25):** {ars(jornal_vac)} / día")
+                st.write(f"**Monto Total Vacaciones Estimado:** {ars(monto_total_vac)}")
+                st.metric("Diferencia vacacional estimada", ars(plus_neto), help="Diferencia adicional a favor del trabajador por base divisor 25.")
+                st.write(f"**Fecha Límite Prevista de Pago:** `{fecha_pago_prev.strftime('%d/%m/%Y')}`")
+            elif tipo_licencia == "ART / Accidente laboral":
+                st.markdown("#### Estimación de impacto ART")
+                jornal_art, dias_emp, dias_art, costo_emp, costo_art = calcular_pago_art(emp_sel["Mensual ARS"], int(dias_pedidos))
+                st.write(f"**Período Solicitado:** {inicio_vac.strftime('%d/%m/%Y')} al {fin_vac.strftime('%d/%m/%Y')} ({dias_pedidos} días)")
+                st.write(f"**Jornal de referencia (base 30):** {ars(jornal_art)} / día")
+                st.metric("Días a cargo del empleador", f"{dias_emp} días")
+                st.metric("Días a tramitar con ART", f"{dias_art} días")
+                st.write(f"**Costo estimado a cargo del empleador:** {ars(costo_emp)}")
+                st.write(f"**Monto referencial recuperable vía ART:** {ars(costo_art)}")
+                fecha_pago_prev = inicio_vac
+            else:
+                st.markdown("#### Seguimiento operativo")
+                st.write(f"**Período Solicitado:** {inicio_vac.strftime('%d/%m/%Y')} al {fin_vac.strftime('%d/%m/%Y')} ({dias_pedidos} días)")
+                st.metric("Impacto salarial directo", "Revisión manual")
+                st.caption("Para enfermedad, certificados u otras licencias, la plataforma registra el evento y permite evaluarlo en la cobertura y la vista aprobador.")
+                jornal_vac = monto_total_vac = plus_neto = None
+                fecha_pago_prev = inicio_vac
 
-            if st.button("Enviar Solicitud a Aprobación", type="primary"):
+            disabled_btn = (tipo_licencia == "Vacaciones LCT" and (saldo_disp == 0 or pd.isna(emp_sel["Mensual ARS"])))
+            if st.button("Registrar solicitud de prueba", type="primary", disabled=disabled_btn):
                 nueva_solicitud = {
                     "N": len(st.session_state.rrhh_vacaciones) + 1,
+                    "Tipo": tipo_licencia,
                     "ID": emp_sel["ID"],
                     "Nombre": emp_sel["Nombre"],
                     "Local": emp_sel["Local"],
@@ -1541,30 +1793,65 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
                     "Fecha Pago Prevista": fecha_pago_prev,
                     "Aprobado Por": "—",
                 }
+                if tipo_licencia == "ART / Accidente laboral":
+                    _, dias_emp, dias_art, costo_emp, costo_art = calcular_pago_art(emp_sel["Mensual ARS"], int(dias_pedidos))
+                    nueva_solicitud["Días cargo empleador"] = dias_emp
+                    nueva_solicitud["Días cargo ART"] = dias_art
+                    nueva_solicitud["Costo estimado empleador"] = costo_emp
+                    nueva_solicitud["Monto recuperable ART"] = costo_art
                 st.session_state.rrhh_vacaciones.append(nueva_solicitud)
-                registrar_auditoria(rol_activo, rol_activo, "SOLICITUD_VACACIONES", emp_sel["ID"], f"Solicitud de {dias_pedidos} días del {inicio_vac} al {fin_vac}.")
+                registrar_auditoria(rol_activo, rol_activo, "SOLICITUD_LICENCIA", emp_sel["ID"], f"{tipo_licencia}: {dias_pedidos} días del {inicio_vac} al {fin_vac}.")
                 st.success("Solicitud registrada con éxito y remitida a la bandeja de autorizaciones.")
                 st.rerun()
 
+        st.markdown("### Simulación de cobertura durante la licencia")
+        st.caption("Disponibilidad orientativa según jornadas registradas y turnos simulados; no representa asistencia confirmada ni autorización de traslado.")
+        pares = personal.loc[(personal["ID"] != emp_vac_id) & (personal["Unidad de Negocio"] == emp_sel["Unidad de Negocio"])]
+        filas = []
+        for offset in range(int(dias_pedidos)):
+            dia = inicio_vac + timedelta(days=offset)
+            turno_actual = turno_efectivo(emp_vac_id, dia)
+            candidatos = []
+            for _, r in pares.iterrows():
+                t = turno_efectivo(r["ID"], dia)
+                if r["Local"] == emp_sel["Local"] and t.startswith("Descanso"):
+                    candidatos.append(r["Nombre"] + " (descanso: requiere autorización)")
+            cobertura = evaluar_cobertura_sucursal(personal, emp_sel["Local"], dia)
+            area_c = cobertura.loc[cobertura["Área"] == emp_sel["Unidad de Negocio"]]
+            disponibles = int(area_c["Presentes"].iloc[0]) if not area_c.empty else 0
+            minimo = int(area_c["Mínimo Requerido"].iloc[0]) if not area_c.empty else 1
+            presente = not turno_actual.startswith("Descanso") and turno_actual not in ["Vacaciones", "Enfermedad / Certificado", "ART / Accidente laboral", "Otra licencia", "Sin registro"]
+            despues = max(0, disponibles - int(presente))
+            filas.append({"Fecha":dia, "Estado previo":turno_actual,"Presentes después":despues,"Mínimo simulado":minimo,"Déficit":max(0,minimo-despues),"Posibles reemplazos": "; ".join(candidatos) or "Sin candidato en descanso del área"})
+        st.dataframe(pd.DataFrame(filas), hide_index=True, use_container_width=True)
         st.divider()
-        st.markdown("### Bandeja de Solicitudes de Vacaciones")
-        if st.session_state.rrhh_vacaciones:
-            df_vac_bandeja = pd.DataFrame(st.session_state.rrhh_vacaciones)
-            st.dataframe(df_vac_bandeja, use_container_width=True, hide_index=True)
+        st.markdown("### Bandeja de Solicitudes y Licencias")
+        vac_filtradas = [v for v in st.session_state.rrhh_vacaciones if v["ID"] in set(base["ID"])]
+        if vac_filtradas:
+            st.dataframe(pd.DataFrame(vac_filtradas), use_container_width=True, hide_index=True)
 
-            solic_pendientes = [s for s in st.session_state.rrhh_vacaciones if s["Estado"] == "Pendiente"]
+            solic_pendientes = [s for s in vac_filtradas if s["Estado"] == "Pendiente"]
             if solic_pendientes and "Auditor" not in rol_activo:
                 st.markdown("#### Resolver Solicitudes Pendientes")
-                idx_res = st.selectbox("Seleccione Solicitud a Resolver", range(len(solic_pendientes)), format_func=lambda i: f"#{solic_pendientes[i]['N']} - {solic_pendientes[i]['Nombre']} ({solic_pendientes[i]['Dias']} días desde {solic_pendientes[i]['Inicio'].strftime('%d/%m')})")
+                idx_res = st.selectbox("Seleccione Solicitud a Resolver", range(len(solic_pendientes)), format_func=lambda i: f"#{solic_pendientes[i]['N']} - {solic_pendientes[i]['Nombre']} · {solic_pendientes[i].get('Tipo', 'Vacaciones LCT')} ({solic_pendientes[i]['Dias']} días desde {solic_pendientes[i]['Inicio'].strftime('%d/%m')})")
                 sol_elegida = solic_pendientes[idx_res]
 
                 b_ap, b_rec = st.columns(2)
-                if b_ap.button("✅ Aprobar Solicitud", type="primary"):
+                if sol_elegida.get("Tipo", "Vacaciones LCT") == "Vacaciones LCT":
+                    ingreso_sol = personal.loc[personal["ID"] == sol_elegida["ID"], "Fecha Ingreso"].iloc[0]
+                    cupo_sol = escala_vacaciones_lct(antiguedad_a_cierre(ingreso_sol, sol_elegida["Inicio"].year))
+                    puede_aprobar = cupo_sol is not None and sol_elegida["Dias"] <= cupo_sol - dias_aprobados_empleado(sol_elegida["ID"], sol_elegida["Inicio"].year)
+                    if not puede_aprobar:
+                        st.warning("Aprobación bloqueada: falta validar ingreso y saldo suficiente.")
+                else:
+                    puede_aprobar = True
+                    st.info("Licencias no vacacionales pueden aprobarse sin consumir cupo LCT; mantener respaldo documental según corresponda.")
+                if b_ap.button("✅ Aprobar Solicitud", type="primary", disabled=not puede_aprobar):
                     for s in st.session_state.rrhh_vacaciones:
                         if s["N"] == sol_elegida["N"]:
                             s["Estado"] = "Aprobada"
                             s["Aprobado Por"] = rol_activo
-                    registrar_auditoria(rol_activo, rol_activo, "APROBACION_VACACIONES", sol_elegida["ID"], f"Aprobadas vacaciones #{sol_elegida['N']} ({sol_elegida['Dias']} días).")
+                    registrar_auditoria(rol_activo, rol_activo, "APROBACION_LICENCIA", sol_elegida["ID"], f"Aprobada licencia #{sol_elegida['N']} ({sol_elegida['Tipo']}).")
                     st.success("Solicitud APROBADA exitosamente.")
                     st.rerun()
                 if b_rec.button("❌ Rechazar Solicitud"):
@@ -1572,7 +1859,7 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
                         if s["N"] == sol_elegida["N"]:
                             s["Estado"] = "Rechazada"
                             s["Aprobado Por"] = rol_activo
-                    registrar_auditoria(rol_activo, rol_activo, "RECHAZO_VACACIONES", sol_elegida["ID"], f"Rechazadas vacaciones #{sol_elegida['N']}.")
+                    registrar_auditoria(rol_activo, rol_activo, "RECHAZO_LICENCIA", sol_elegida["ID"], f"Rechazada licencia #{sol_elegida['N']}." )
                     st.warning("Solicitud RECHAZADA.")
                     st.rerun()
 
@@ -1591,9 +1878,19 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
                 "Antigüedad (Años)": ant,
                 "Días por Ley LCT": cupo,
                 "Días Gozados / Aprobados": aprob,
-                "Saldo Disponible": max(0, cupo - aprob),
+                "Saldo Disponible": max(0, cupo - aprob) if cupo is not None else None,
             })
         st.dataframe(pd.DataFrame(filas_matriz), use_container_width=True, hide_index=True)
+        st.caption("Esta matriz conserva el enfoque legal de cupo y saldo. Las otras licencias no descuentan vacaciones, pero sí aparecen en la vista aprobador.")
+
+    with tab_aprob:
+        st.markdown("### Vista aprobador de vacaciones y licencias")
+        cva1, cva2 = st.columns(2)
+        local_vista = cva1.selectbox("Sucursal a visualizar", sorted(base["Local"].unique().tolist()), key="vac_local_view")
+        mes_vista = cva2.selectbox("Mes a visualizar", range(1, 13), index=HOY_AR.month - 1, format_func=lambda m: MESES[m - 1], key="vac_month_view")
+        sub_vista = base.loc[base["Local"] == local_vista].copy()
+        st.markdown(render_matriz_aprobador_vacaciones(sub_vista, anio_filtro, mes_vista), unsafe_allow_html=True)
+        st.caption("Objetivo funcional: que el aprobador vea rápidamente quién ya está licenciado, quién tiene solicitudes pendientes y dónde podrían generarse solapes o faltantes de backup.")
 
 
 # ============================================================
@@ -1603,7 +1900,7 @@ elif pagina == "🏖️ Vacaciones & Régimen LCT":
 elif pagina == "💰 Remuneraciones & Anticipos":
     cabecera(
         "Administración Salarial, Anticipos y Costos Laborales",
-        "Presupuesto sobre Salario Mensual, gestión auditable de anticipos, estimación de cargas patronales y provisiones de aguinaldo (SAC).",
+        "Presupuesto sobre salario base o semanal real, gestión auditable de anticipos, estimación de cargas patronales y provisiones de aguinaldo (SAC).",
         "Sección 4.6 · Gestión Salarial",
     )
 
@@ -1614,18 +1911,22 @@ elif pagina == "💰 Remuneraciones & Anticipos":
     ])
 
     with t_nom:
-        total_sal_base = base["Mensual ARS"].sum()
-        total_sac_jun = base["Aguinaldo junio"].fillna(0).sum()
-        total_sac_dic = base["Aguinaldo diciembre"].fillna(0).sum()
+        base_nomina = st.radio("Base visual de remuneración", ["Salario mensual calculado", "Semanal real anualizado"], horizontal=True)
+        col_base = "Mensual ARS" if base_nomina == "Salario mensual calculado" else "Mensual real ARS"
+        etiqueta_base = "Masa Mensual Base" if col_base == "Mensual ARS" else "Masa Mensual Realizada"
+        total_sal_base = base[col_base].sum(min_count=1)
+        total_sac_jun = base["Aguinaldo junio"].sum(min_count=1)
+        total_sac_dic = base["Aguinaldo diciembre"].sum(min_count=1)
 
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Masa Mensual Base", millones(total_sal_base))
-        c2.metric("Proyección Anual Base", millones(total_sal_base * 12))
-        c3.metric("SAC Junio (Aguinaldo)", millones(total_sac_jun if total_sac_jun > 0 else total_sal_base * 0.5))
-        c4.metric("SAC Diciembre (Aguinaldo)", millones(total_sac_dic if total_sac_dic > 0 else total_sal_base * 0.5))
+        c1.metric(etiqueta_base, millones(total_sal_base))
+        c2.metric("Proyección Anual", millones(total_sal_base * 12) if pd.notna(total_sal_base) else "Sin datos")
+        c3.metric("SAC Junio (Aguinaldo)", millones(total_sac_jun))
+        c4.metric("SAC Diciembre (Aguinaldo)", millones(total_sac_dic))
 
         st.markdown("#### Detalle de Planilla y Comparación")
-        cols_mostrar = ["ID", "Nombre", "Local", "Rol", "Mensual ARS", "Semanal", "semanal real", "Semanal equivalente ARS"]
+        st.caption(f"SAC informado: junio {base['Aguinaldo junio'].notna().sum()}/{len(base)}, diciembre {base['Aguinaldo diciembre'].notna().sum()}/{len(base)}. Cecilia indicó que conviene poder alternar entre salario base y semanal real; por eso la vista permite ambas lecturas. Todos los montos en ARS.")
+        cols_mostrar = ["ID", "Nombre", "Local", "Rol", "Salario en recibo de sueldo", "Mensual ARS", "Semanal", "semanal real", "Mensual real ARS", "Semanal equivalente ARS", "Aguinaldo junio", "Aguinaldo diciembre", "Semanas 2026", "Total (sin aguinaldo)", "Total real (sin aguinaldo)", "Diferencia"]
         st.dataframe(base[cols_mostrar], use_container_width=True, hide_index=True)
 
     with t_ant:
@@ -1647,7 +1948,9 @@ elif pagina == "💰 Remuneraciones & Anticipos":
             local_emp = base.loc[base["ID"] == emp_ant_id, "Local"].iloc[0]
             limite_dinero = sueldo_emp * (tope_porc / 100.0)
 
-            if monto_ant > limite_dinero:
+            if pd.isna(sueldo_emp):
+                st.error("Salario mensual no registrado; no se puede estimar el límite.")
+            elif monto_ant > limite_dinero:
                 st.error(f"El anticipo solicitado ({ars(monto_ant)}) supera el límite del {tope_porc}% del sueldo ({ars(limite_dinero)}).")
             else:
                 nuevo_ant = {
@@ -1668,10 +1971,11 @@ elif pagina == "💰 Remuneraciones & Anticipos":
                 st.rerun()
 
         st.markdown("#### Historial y Control de Anticipos")
-        if st.session_state.rrhh_anticipos:
-            st.dataframe(pd.DataFrame(st.session_state.rrhh_anticipos), use_container_width=True, hide_index=True)
+        ant_filtrados = [a for a in st.session_state.rrhh_anticipos if a["ID"] in set(base["ID"])]
+        if ant_filtrados:
+            st.dataframe(pd.DataFrame(ant_filtrados), use_container_width=True, hide_index=True)
 
-            pendientes_ant = [a for a in st.session_state.rrhh_anticipos if a["Estado"] == "Solicitado"]
+            pendientes_ant = [a for a in ant_filtrados if a["Estado"] == "Solicitado"]
             if pendientes_ant and "Auditor" not in rol_activo:
                 st.markdown("#### Autorizar Anticipos Pendientes")
                 idx_ant = st.selectbox("Seleccione Anticipo a Autorizar", range(len(pendientes_ant)), format_func=lambda i: f"#{pendientes_ant[i]['N']} - {pendientes_ant[i]['Nombre']} ({ars(pendientes_ant[i]['Monto'])})")
@@ -1686,15 +1990,19 @@ elif pagina == "💰 Remuneraciones & Anticipos":
                     st.rerun()
 
     with t_costo:
+        base_costos = st.radio("Base para costo empresa", ["Salario mensual calculado", "Semanal real anualizado"], horizontal=True, key="base_costos_radio")
+        col_base_cost = "Mensual ARS" if base_costos == "Salario mensual calculado" else "Mensual real ARS"
         st.markdown("### Estructura de Costo Laboral Total por Empleado y Sucursal")
+        st.info("Escenario de presupuesto: la base puede alternarse entre salario calculado y semanal real anualizado. Las tasas de cargas y ART son ilustrativas para la demo.")
         costo_df_list = []
         for _, r in base.iterrows():
-            c = costo_laboral_total(r["Mensual ARS"])
+            c = costo_laboral_total(r[col_base_cost])
             costo_df_list.append({
                 "ID": r["ID"],
                 "Nombre": r["Nombre"],
                 "Sucursal": r["Local"],
-                "Salario Bruto": r["Mensual ARS"],
+                "Base utilizada": base_costos,
+                "Salario base considerado": r[col_base_cost],
                 "Cargas Patronales (24%)": c["cargas_patronales"],
                 "Alícuota ART (3%)": c["art"],
                 "Provisión SAC Mensual": c["provision_sac"],
@@ -1724,44 +2032,9 @@ elif pagina == "📈 Productividad Operativa (POS)":
         """
     )
 
-    prod_data = []
-    for _, r in base.iterrows():
-        rng = random.Random(semilla("prod-" + r["ID"]))
-        es_cajero = "Cajer" in r["Rol"]
-        es_cortador = "Cortador" in r["Rol"] or "Carnic" in r["Rol"]
-        
-        if es_cajero:
-            ops = rng.randint(180, 310)
-            ticket_prom = rng.randint(14000, 26000)
-        elif es_cortador:
-            ops = rng.randint(90, 160)
-            ticket_prom = rng.randint(18000, 32000)
-        else:
-            ops = rng.randint(50, 120)
-            ticket_prom = rng.randint(8000, 19000)
-
-        total_vendido = ops * ticket_prom
-
-        prod_data.append({
-            "ID": r["ID"],
-            "Nombre": r["Nombre"],
-            "Sucursal": r["Local"],
-            "Rol": r["Rol"],
-            "Operaciones / Turno": ops,
-            "Ticket Promedio (ARS)": ticket_prom,
-            "Volumen Facturado Asignado": total_vendido,
-            "Índice de Cadencia": "Alta" if ops > 200 else ("Media" if ops > 100 else "Estándar"),
-        })
-
-    df_prod = pd.DataFrame(prod_data)
-
-    p1, p2, p3 = st.columns(3)
-    p1.metric("Total Operaciones Procesadas", f"{df_prod['Operaciones / Turno'].sum():,} ops".replace(",", "."))
-    p2.metric("Volumen Facturado Operativo", millones(df_prod["Volumen Facturado Asignado"].sum()))
-    p3.metric("Promedio de Atención", f"{int(df_prod['Operaciones / Turno'].mean())} ops/turno")
-
-    st.dataframe(df_prod, use_container_width=True, hide_index=True)
-
+    st.info("sueldos.xlsx no contiene operaciones POS ni ventas por trabajador. No se muestran métricas de productividad inventadas vinculadas a personas reales.")
+    st.markdown("### Puestos con atención al público registrada")
+    st.dataframe(base[["ID", "Nombre", "Local", "Rol", "Atiende al publico?"]].replace("", "Sin registrar"), hide_index=True, use_container_width=True)
 
 # ============================================================
 # 16. MÓDULO 7: CENTRO DE ALERTAS & WHATSAPP BUSINESS
@@ -1777,19 +2050,15 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
     alertas = []
 
     for _, r in base.iterrows():
-        dias_dom = (HOY_AR - r["Ultima Confirmacion Domicilio"]).days
-        if dias_dom > 180 and r["ID"] not in st.session_state.rrhh_domicilios_ratificados:
-            alertas.append({
-                "Clave": f"DOM-{r['ID']}",
-                "Tipo": "Domicilio Semestral",
-                "Prioridad": "Alta",
-                "Referencia": f"{r['ID']} - {r['Nombre']}",
-                "Descripción": f"Han transcurrido {dias_dom} días sin ratificación formal de domicilio (Art. 4.1).",
-                "Accion": "Ratificar Domicilio",
-            })
+        faltantes = []
+        for campo, valor in [("nombre/apellido", r["Identidad completa"]), ("DNI", bool(r["DNI"])), ("nacimiento", pd.notna(r["Fecha Nacimiento"])), ("ingreso", pd.notna(r["Fecha Ingreso"])), ("domicilio", bool(r["Domicilio"])), ("jornada", bool(r["Jornada horaria"]))]:
+            if not valor:
+                faltantes.append(campo)
+        if faltantes:
+            alertas.append({"Clave": f"DAT-{r['ID']}", "Tipo": "Legajo incompleto", "Prioridad": "Media", "Referencia": f"{r['ID']} - {r['Nombre']}", "Descripción": "Pendiente: " + ", ".join(faltantes), "Accion": "Completar datos de origen"})
 
     for s in st.session_state.rrhh_vacaciones:
-        if s["Estado"] == "Pendiente":
+        if s["Estado"] == "Pendiente" and s["ID"] in set(base["ID"]):
             alertas.append({
                 "Clave": f"VAC-{s['N']}",
                 "Tipo": "Vacaciones",
@@ -1800,7 +2069,7 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
             })
 
     for a in st.session_state.rrhh_anticipos:
-        if a["Estado"] == "Solicitado":
+        if a["Estado"] == "Solicitado" and a["ID"] in set(base["ID"]):
             alertas.append({
                 "Clave": f"ANT-{a['N']}",
                 "Tipo": "Anticipo de Sueldo",
@@ -1816,10 +2085,10 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
         for _, dc in def_crit.iterrows():
             alertas.append({
                 "Clave": f"COB-{suc}-{dc['Área']}",
-                "Tipo": "Dotación Mínima",
+                "Tipo": "Dotación Mínima (simulación)",
                 "Prioridad": "Alta",
                 "Referencia": f"{suc} · {dc['Área']}",
-                "Descripción": f"Déficit operativo: faltan {dc['Déficit']} personas para alcanzar la dotación mínima.",
+                "Descripción": f"Déficit simulado: faltan {dc['Déficit']} personas para alcanzar la dotación mínima.",
                 "Accion": "Asignar Reemplazo",
             })
 
@@ -1844,7 +2113,7 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
                 st.success("Alerta marcada como revisada.")
                 st.rerun()
         else:
-            st.success("✓ No hay alertas pendientes en el sistema. Todos los parámetros se encuentran normalizados.")
+            st.success("✓ No hay alertas abiertas en esta vista de la demo.")
 
     with col_der:
         st.markdown("### 📱 Simulador WhatsApp Business Platform (API)")
@@ -1855,7 +2124,7 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
                     <div class="wa-header-avatar">EL</div>
                     <div>
                         <div style="font-weight:700; color:#E9EDEF; font-size:14px;">El Luchador · RR. HH.</div>
-                        <div style="font-size:11px; color:#00A884;">● Cuenta Empresarial Oficial Verificada</div>
+                        <div style="font-size:11px; color:#00A884;">● Vista simulada · sin conexión API</div>
                     </div>
                 </div>
                 <div class="wa-body">
@@ -1869,7 +2138,7 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
         else:
             txt_wa = "✓ *SISTEMA DE GESTIÓN EL LUCHADOR*\nTodas las alertas operativas han sido atendidas. Dotaciones cubiertas y nómina en orden."
 
-        txt_wa_html = txt_wa.replace("\n", "<br>")
+        txt_wa_html = html.escape(txt_wa).replace("\n", "<br>")
 
         st.markdown(
             f"""
@@ -1890,10 +2159,10 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
             if b_wa1.button("🟢 Resolver desde WhatsApp", type="primary"):
                 st.session_state.rrhh_alertas_vistas.add(visibles[0]["Clave"])
                 registrar_auditoria(rol_activo, rol_activo, "RESOLUCION_WHATSAPP", visibles[0]["Referencia"], "Resuelto vía botón rápido de WhatsApp API.")
-                st.success("Acción transaccional ejecutada desde la notificación interactiva.")
+                st.success("Simulación: alerta marcada como revisada en esta sesión.")
                 st.rerun()
             if b_wa2.button("📲 Reenviar Plantilla"):
-                st.info("Plantilla HSM reenviada a los supervisores de turno.")
+                st.info("Simulación: no se ha enviado ningún mensaje real.")
 
 
 # ============================================================
@@ -1903,7 +2172,7 @@ elif pagina == "🔔 Centro de Alertas & WhatsApp":
 elif pagina == "🛡️ Registro de Auditoría":
     cabecera(
         "Pistas de Auditoría y Trazabilidad (Event Sourcing)",
-        "Registro inmutable de transacciones, altas, aprobaciones de licencias y ratificaciones contractuales con marca temporal y usuario.",
+        "Registro de las acciones de la sesión, no persistente ni inmutable.",
         "Sección 2.2 · Seguridad y Auditoría",
     )
 
@@ -1931,7 +2200,7 @@ st.markdown(
     f"""
     <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:{GRIS_TEXTO};">
         <div><b>El Luchador</b> · Plataforma de Gestión e Inteligencia Empresarial (Etapa 1: Recursos Humanos)</div>
-        <div>Cumplimiento Legal LCT N° 20.744 · Multiempresa: Misión & Il Comendatori</div>
+        <div>Demo no certifica cumplimiento legal · Multiempresa: Misión & Il Comendatori</div>
     </div>
     """,
     unsafe_allow_html=True,
